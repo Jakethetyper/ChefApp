@@ -20,7 +20,7 @@ export default function AppLayout() {
       />
       <Tabs.Screen
         name="addRecipe"
-        options={{ headerShown: false, title: "Publish" }}
+        options={{ headerShown: false, title: "Recipe" }}
       />
       <Tabs.Screen
         name="profile"

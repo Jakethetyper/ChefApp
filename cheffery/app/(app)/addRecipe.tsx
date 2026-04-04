@@ -43,12 +43,14 @@ export default function AddRecipe() {
           <View>
             <TextInput
               placeholder="Name..."
+              placeholderTextColor="black"
               value={title}
               onChangeText={(text) => setTitle(text)}
               style={styles.input}
             />
             <TextInput
               placeholder="Description..."
+              placeholderTextColor="black"
               value={description}
               onChangeText={(text) => setDescription(text)}
               style={styles.input}
@@ -56,12 +58,14 @@ export default function AddRecipe() {
             <View style={globalStyles.rowContainer}>
               <TextInput
                 placeholder="Prep Time..."
+                placeholderTextColor="black"
                 value={prepTime}
                 onChangeText={(text) => setPrepTime(text)}
                 style={styles.input}
               />
               <TextInput
                 placeholder="Cook Time..."
+                placeholderTextColor="black"
                 value={cookTime}
                 onChangeText={(text) => setCookTime(text)}
                 style={styles.input}
@@ -119,6 +123,9 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 10,
+    borderWidth:2,
+    padding:3,
+    margin:3
   },
   ingredientsContainer: {},
   submitIngredientBtn: {
