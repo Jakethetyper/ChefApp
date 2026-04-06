@@ -41,7 +41,7 @@ export default function Login() {
           />
           <TouchableOpacity
             onPress={() => login(userName, password)}
-          ></TouchableOpacity>
+          ><Text>Login</Text></TouchableOpacity>
           <Link href="/signup">
             <Text>New? Signup</Text>
           </Link>
