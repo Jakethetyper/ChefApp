@@ -17,7 +17,11 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+<<<<<<< HEAD
 const BACKEND_URL = "https://cordia-orthomorphic-alane.ngrok-free.dev";
+=======
+const BACKEND_URL = "https://9197-208-38-228-61.ngrok-free.app";
+>>>>>>> 33a7a11 (updated backed to submit Recipes and home page)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
