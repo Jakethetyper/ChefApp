@@ -28,8 +28,13 @@ const userSchema = new mongoose.Schema({
   ],
   createdRecipes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Recipes",
+      recipeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Recipes",
+      },
+      recipeTitle: {
+        type: String,
+      },
     },
   ],
 });

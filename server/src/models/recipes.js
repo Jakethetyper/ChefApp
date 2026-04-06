@@ -17,8 +17,15 @@ const recipeSchema = new mongoose.Schema({
   },
   ingredients: [
     {
-      type: String,
-      required: true,
+      qty: {
+        type: String,
+      },
+      unit: {
+        type: String,
+      },
+      ingredient: {
+        type: String,
+      },
     },
   ],
   instructions: [
@@ -33,13 +40,25 @@ const recipeSchema = new mongoose.Schema({
       },
     },
   ],
+  cuisine: {
+    type: String,
+    enum: ["Italian", "Mexican", "American", "Asian", "Indian"],
+  },
   categories: [
     {
       type: String,
+      enum: [
+        "Breakfast",
+        "Lunch",
+        "Dinner",
+        "Dessert",
+        "Snack",
+        "Entree",
+        "Appetizer",
+      ],
     },
   ],
-  mealType: [{ type: String }],
-  Ratings: [
+  ratings: [
     {
       user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       name: { type: String, required: true },
@@ -52,6 +71,21 @@ const recipeSchema = new mongoose.Schema({
       },
     },
   ],
+  chef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    req: true,
+  },
+  chefName: {
+    type: String,
+    req: true,
+  },
+  tasteRating: {
+    type: Number,
+  },
+  difficultyRating: {
+    type: Number,
+  },
 });
 
 module.exports = mongoose.model("Recipe", recipeSchema);
