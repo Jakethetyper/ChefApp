@@ -2,17 +2,25 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { saveToken, getToken, clearToken } from "../services/token.service";
 
+type User = {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+};
+
 type AuthContextType = {
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (userName: string, password: string) => Promise<void>;
   signup: (
-    firstname: string,
-    lastname: string,
+    firstName: string,
+    lastName: string,
     password: string,
     userName: string,
   ) => Promise<void>;
   logout: () => Promise<void>;
   BACKEND_URL: string;
+  userInfo: User | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,11 +30,17 @@ const BACKEND_URL = "https://cordia-orthomorphic-alane.ngrok-free.dev";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
 
   useEffect(() => {
     const restoreSession = async () => {
       const token = await getToken();
       if (token) {
+        const res = await fetch(`${BACKEND_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setUserInfo(data.user);
         setIsAuthenticated(true);
       }
       setIsLoading(false);
@@ -44,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const data = await res.json();
+      setUserInfo(data.user);
 
       if (!res.ok) {
         Alert.alert("Login failed", data.message || "Unknown error");
@@ -79,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const data = await res.json();
+      setUserInfo(data.user);
 
       if (!res.ok) {
         Alert.alert("Signup failed", data.message || "Unknown error");
@@ -104,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, signup, logout, BACKEND_URL }}
+      value={{ isAuthenticated, login, signup, logout, BACKEND_URL, userInfo }}
     >
       {children}
     </AuthContext.Provider>

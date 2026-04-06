@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import {
   View,
@@ -42,6 +43,8 @@ type Ingredient = {
 };
 
 export default function AddRecipe() {
+  const { BACKEND_URL, userInfo } = useAuth();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -68,22 +71,31 @@ export default function AddRecipe() {
   const [steps, setSteps] = useState<string[]>([]);
   const [newStep, setNewStep] = useState("");
 
-  const saveRecipe = () => {
-    const recipe = {
-      id: Date.now().toString(),
-      title,
-      description,
-      cookTime,
-      prepTime,
-      mealType,
-      cuisineType,
-      ingredients,
-      steps,
-      tasteRating,
-      difficultyRating,
-    };
+  const saveRecipe = async () => {
+    try {
+      const sendRecipe = await fetch(`${BACKEND_URL}/auth/addRecipe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          prepTime: prepTime || null,
+          cookTime: cookTime || null,
+          ingredients,
+          instructions: steps,
+          cuisine: cuisineType || null,
+          tasteRating,
+          difficultyRating,
+          chef: userInfo?.userId,
+          chefName: userInfo?.userName,
+        }),
+      });
 
-    console.log("Saving recipe:", recipe);
+      const data = await sendRecipe.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const mealOptions = [
@@ -177,7 +189,9 @@ export default function AddRecipe() {
           style={styles.dropdown}
           onPress={() => setShowMealMenu(!showMealMenu)}
         >
-          <Text style={mealType ? styles.dropdownText : styles.dropdownPlaceholder}>
+          <Text
+            style={mealType ? styles.dropdownText : styles.dropdownPlaceholder}
+          >
             {mealType || "Select meal type"}
           </Text>
         </TouchableOpacity>
