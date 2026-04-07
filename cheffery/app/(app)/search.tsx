@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 // -----------------------------
 // Types
@@ -30,7 +31,7 @@ function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
   };
 }
 
-const BACKEND_URL = "http://localhost:5000"; // replace with ngrok when needed
+const BACKEND_URL = "https://cordia-orthomorphic-alane.ngrok-free.dev"; // replace with ngrok when needed
 
 export default function SearchScreen() {
   const [query, setQuery] = useState("");
@@ -94,7 +95,8 @@ export default function SearchScreen() {
   );
 
   return (
-    <View style={styles.container}>
+<SafeAreaProvider>
+  <SafeAreaView style={styles.container}>    
       <Text style={styles.header}>Search Recipes</Text>
 
       <TextInput
@@ -117,7 +119,8 @@ export default function SearchScreen() {
           ) : null
         }
       />
-    </View>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

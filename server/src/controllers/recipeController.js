@@ -80,5 +80,4 @@ const searchRecipes = async (req, res) => {
   }
 };
 
-module.exports = { addRecipe, getRecentRecipes, searchRecipes };
-
+module.exports = { addRecipe, getRecentRecipes, searchRecipes,};
