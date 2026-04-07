@@ -95,4 +95,17 @@ const me = async (req, res) => {
   }
 };
 
-module.exports = { login, signup, me };
+const getMyself = async (req, res) => {
+  try {
+    const { userName } = req.body;
+
+    const person = await User.findOne({ userName });
+
+    return res.status(200).json(person);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "error getting user", error });
+  }
+};
+
+module.exports = { login, signup, me, getMyself };

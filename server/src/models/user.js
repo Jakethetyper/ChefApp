@@ -6,6 +6,15 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  height: {
+    type: String,
+  },
+  weight: {
+    type: Number,
+  },
+  gender: {
+    type: String,
+  },
   firstName: {
     type: String,
     required: true,

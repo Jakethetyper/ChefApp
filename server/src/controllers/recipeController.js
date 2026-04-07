@@ -35,7 +35,7 @@ const addRecipe = async (req, res) => {
 
     const savedRecipe = await newRecipe.save();
 
-    const userToUpdate = await User.findById(userId);
+    const userToUpdate = await User.find({ _id: userId });
     console.log(userToUpdate);
     userToUpdate.createdRecipes.push({
       recipeId: savedRecipe._id,

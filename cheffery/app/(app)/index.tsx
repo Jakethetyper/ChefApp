@@ -34,11 +34,61 @@ export default function Home() {
     getRecentlyUploaded(); // ✅ correctly called
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.title}>{item.title}</Text>
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    const totalTime =
+      (item.prepTime ? Number(item.prepTime) : 0) +
+      (item.cookTime ? Number(item.cookTime) : 0);
+
+    return (
+      <View style={styles.card}>
+        {/* Title */}
+        <Text style={styles.title}>{item.title}</Text>
+
+        {/* Description */}
+        {item.description ? (
+          <Text style={styles.description} numberOfLines={2}>
+            {item.description}
+          </Text>
+        ) : null}
+
+        {/* Meta Row */}
+        <View style={styles.metaRow}>
+          {item.cuisine && <Text style={styles.meta}>{item.cuisine}</Text>}
+
+          {item.categories?.length > 0 && (
+            <Text style={styles.meta}>{item.categories.join(", ")}</Text>
+          )}
+        </View>
+
+        {/* Time + Ingredients */}
+        <View style={styles.metaRow}>
+          {totalTime > 0 && <Text style={styles.meta}>⏱ {totalTime} min</Text>}
+
+          {item.ingredients?.length > 0 && (
+            <Text style={styles.meta}>
+              🥕 {item.ingredients.length} ingredients
+            </Text>
+          )}
+        </View>
+
+        {/* Ratings */}
+        <View style={styles.metaRow}>
+          {item.tasteRating && (
+            <Text style={styles.meta}>⭐ Taste: {item.tasteRating}</Text>
+          )}
+
+          {item.difficultyRating && (
+            <Text style={styles.meta}>
+              ⚙️ Difficulty: {item.difficultyRating}
+            </Text>
+          )}
+        </View>
+
+        {/* Chef */}
+        {item.chefName && <Text style={styles.chef}>By {item.chefName}</Text>}
+      </View>
+    );
+  };
 
   return (
     <SafeAreaProvider>
@@ -86,6 +136,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     shadowColor: "#000",
     shadowOpacity: 0.1,
+    shadowOffset: { height: 2, width: 2 },
     shadowRadius: 4,
     elevation: 2,
   },
@@ -99,5 +150,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 40,
     color: "gray",
+  },
+  description: {
+    color: "#555",
+    marginTop: 4,
+  },
+
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 6,
+  },
+
+  meta: {
+    fontSize: 12,
+    color: "#777",
+    backgroundColor: "#eee",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+
+  chef: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#999",
   },
 });
