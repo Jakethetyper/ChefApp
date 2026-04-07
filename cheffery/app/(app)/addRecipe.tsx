@@ -119,7 +119,7 @@ export default function AddRecipe() {
   ];
 
   const addIngredient = () => {
-    if (!quantity || !unit || !ingredient) return;
+    if (!quantity || !ingredient) return;
     setIngredients((prev) => [...prev, { quantity, unit, ingredient }]);
     setQuantity("");
     setUnit("");
