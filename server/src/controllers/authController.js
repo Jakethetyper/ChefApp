@@ -12,7 +12,7 @@ const createToken = (user) => {
       userName: user.userName,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" },
+    { expiresIn: "7d" }
   );
 };
 
@@ -31,7 +31,7 @@ const signup = async (req, res) => {
 
     const token = createToken(user);
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, user });
   } catch (error) {
     console.log(error);
     return res.status(500).json("signup failed");
@@ -48,13 +48,14 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "No User Found" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    // FIXED: compare against foundUser.passwordHash
+    const isMatch = await bcrypt.compare(password, foundUser.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = createToken(foundUser);
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, user: foundUser });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Login Failed" });
@@ -73,8 +74,9 @@ const me = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id).select(
-      "_id firstName lastName userName",
+    // FIXED: use decoded.userId
+    const user = await User.findById(decoded.userId).select(
+      "_id firstName lastName userName"
     );
 
     if (!user) {

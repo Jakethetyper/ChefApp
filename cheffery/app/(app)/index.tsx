@@ -9,10 +9,24 @@ import {
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 
+type Recipe = {
+  _id: string;
+  title: string;
+  description?: string;
+  cuisine?: string;
+  categories?: string[];
+  prepTime?: string;
+  cookTime?: string;
+  ingredients?: { ingredient: string }[];
+  tasteRating?: number;
+  difficultyRating?: number;
+  chefName?: string;
+};
+
 export default function Home() {
   const { BACKEND_URL } = useAuth();
 
-  const [recentRecipes, setRecentRecipes] = useState([]);
+  const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,10 +45,13 @@ export default function Home() {
       }
     };
 
-    getRecentlyUploaded(); // ✅ correctly called
+    getRecentlyUploaded();
   }, []);
 
-  const renderItem = ({ item }) => {
+  // -----------------------------
+  // FIXED renderItem
+  // -----------------------------
+  const renderItem = ({ item }: { item: Recipe }) => {
     const totalTime =
       (item.prepTime ? Number(item.prepTime) : 0) +
       (item.cookTime ? Number(item.cookTime) : 0);
@@ -55,20 +72,20 @@ export default function Home() {
         <View style={styles.metaRow}>
           {item.cuisine && <Text style={styles.meta}>{item.cuisine}</Text>}
 
-          {item.categories?.length > 0 && (
+          {item.categories?.length ? (
             <Text style={styles.meta}>{item.categories.join(", ")}</Text>
-          )}
+          ) : null}
         </View>
 
         {/* Time + Ingredients */}
         <View style={styles.metaRow}>
           {totalTime > 0 && <Text style={styles.meta}>⏱ {totalTime} min</Text>}
 
-          {item.ingredients?.length > 0 && (
+          {item.ingredients?.length ? (
             <Text style={styles.meta}>
               🥕 {item.ingredients.length} ingredients
             </Text>
-          )}
+          ) : null}
         </View>
 
         {/* Ratings */}
@@ -151,6 +168,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     color: "gray",
   },
+
   description: {
     color: "#555",
     marginTop: 4,

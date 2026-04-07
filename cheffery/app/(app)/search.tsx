@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import React, { useState, useCallback } from "react";
 import {
   View,
@@ -31,12 +32,11 @@ function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
   };
 }
 
-const BACKEND_URL = "https://cordia-orthomorphic-alane.ngrok-free.dev"; // replace with ngrok when needed
-
 export default function SearchScreen() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
+  const {BACKEND_URL} = useAuth()
 
   // -----------------------------
   // Search function
@@ -50,7 +50,7 @@ export default function SearchScreen() {
     try {
       setLoading(true);
       const response = await fetch(
-        `${BACKEND_URL}/recipes/search?name=${encodeURIComponent(searchTerm)}`
+        `${BACKEND_URL}/auth/search?name=${encodeURIComponent(searchTerm)}`
       );
       const data = await response.json();
       setResults(data);
