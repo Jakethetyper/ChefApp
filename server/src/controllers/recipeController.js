@@ -36,7 +36,7 @@ const addRecipe = async (req, res) => {
     const savedRecipe = await newRecipe.save();
 
     const userToUpdate = await User.findById(userId);
-console.log(userToUpdate)
+    console.log(userToUpdate);
     userToUpdate.createdRecipes.push({
       recipeId: savedRecipe._id,
       recipeTitle: savedRecipe.title,
@@ -70,7 +70,7 @@ const searchRecipes = async (req, res) => {
     }
 
     const recipes = await Recipe.find({
-      title: { $regex: name, $options: "i" } // case-insensitive match
+      title: { $regex: name, $options: "i" }, // case-insensitive match
     });
 
     return res.status(200).json(recipes);
@@ -81,4 +81,3 @@ const searchRecipes = async (req, res) => {
 };
 
 module.exports = { addRecipe, getRecentRecipes, searchRecipes };
-
