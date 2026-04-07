@@ -35,8 +35,12 @@ const addRecipe = async (req, res) => {
 
     const savedRecipe = await newRecipe.save();
 
-    const userToUpdate = await User.find({ _id: userId });
-    console.log(userToUpdate);
+    const userToUpdate = await User.findOne({ userName: user });
+
+    if (!userToUpdate.createdRecipes) {
+      userToUpdate.createdRecipes = [];
+    }
+
     userToUpdate.createdRecipes.push({
       recipeId: savedRecipe._id,
       recipeTitle: savedRecipe.title,
@@ -61,6 +65,7 @@ const getRecentRecipes = async (req, res) => {
     return res.status(500).json({ message: "Error adding recipe", error });
   }
 };
+
 const searchRecipes = async (req, res) => {
   try {
     const { name } = req.query;
@@ -80,4 +85,4 @@ const searchRecipes = async (req, res) => {
   }
 };
 
-module.exports = { addRecipe, getRecentRecipes, searchRecipes,};
+module.exports = { addRecipe, getRecentRecipes, searchRecipes };

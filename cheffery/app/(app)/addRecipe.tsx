@@ -86,13 +86,12 @@ export default function AddRecipe() {
           cuisine: cuisineType || null,
           tasteRating,
           difficultyRating,
-          chef: userInfo?.userId,
-          chefName: userInfo?.userName,
+          userId: userInfo?.userId,
+          user: userInfo?.userName,
         }),
       });
 
       const data = await sendRecipe.json();
-      console.log(data);
     } catch (error) {
       console.log(error);
     }

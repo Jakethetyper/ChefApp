@@ -12,7 +12,7 @@ const createToken = (user) => {
       userName: user.userName,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 };
 
@@ -64,32 +64,12 @@ const login = async (req, res) => {
 
 const me = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
+    const { userId } = req.body;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // FIXED: use decoded.userId
-    const user = await User.findById(decoded.userId).select(
-      "_id firstName lastName userName"
-    );
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const user = await User.findOne({ _id: userId });
 
     return res.status(200).json({
-      user: {
-        userId: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userName: user.userName,
-      },
+      user,
     });
   } catch (error) {
     console.log(error);
@@ -97,17 +77,4 @@ const me = async (req, res) => {
   }
 };
 
-const getMyself = async (req, res) => {
-  try {
-    const { userName } = req.body;
-
-    const person = await User.findOne({ userName });
-
-    return res.status(200).json(person);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "error getting user", error });
-  }
-};
-
-module.exports = { login, signup, me, getMyself };
+module.exports = { login, signup, me };

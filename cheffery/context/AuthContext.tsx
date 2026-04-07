@@ -1,12 +1,33 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Alert } from "react-native";
-import { saveToken, getToken, clearToken } from "../services/token.service";
+import { Alert, useColorScheme } from "react-native";
+import {
+  saveToken,
+  getToken,
+  clearToken,
+  getDecodedToken,
+} from "../services/token.service";
+
+type Created = {
+  recipeId: string;
+  recipeTitle: string;
+};
 
 type User = {
   userId: string;
+  userName: string;
   firstName: string;
   lastName: string;
-  userName: string;
+  height?: string;
+  weight?: number;
+  gender?: string;
+  favoritedRecipes: any[];
+  createdRecipes: Created[];
+};
+
+type Theme = {
+  background: string;
+  text: string;
+  card: string;
 };
 
 type AuthContextType = {
@@ -21,24 +42,54 @@ type AuthContextType = {
   logout: () => Promise<void>;
   BACKEND_URL: string;
   userInfo: User | null;
+  theme: Theme;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = "https://cordia-orthomorphic-alane.ngrok-free.dev";
+const BACKEND_URL = "https://2de8-208-38-228-61.ngrok-free.app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<User | null>(null);
 
+  const lightTheme = {
+    background: "#ffffff",
+    text: "#000000",
+    card: "#f5f5f5",
+  };
+
+  const darkTheme = {
+    background: "#121212",
+    text: "#ffffff",
+    card: "#1e1e1e",
+  };
+
+  const scheme = useColorScheme();
+
+  const theme = scheme === "dark" ? darkTheme : lightTheme;
+
   useEffect(() => {
     const restoreSession = async () => {
       const token = await getToken();
       if (token) {
+        const value = await getDecodedToken();
+        console.log(value);
         const res = await fetch(`${BACKEND_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: value?.userId,
+          }),
         });
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.log(text);
+          return;
+        }
+
         const data = await res.json();
         setUserInfo(data.user);
         setIsAuthenticated(true);
@@ -57,13 +108,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ userName, password }),
       });
 
-      const data = await res.json();
-      setUserInfo(data.user);
-
       if (!res.ok) {
-        Alert.alert("Login failed", data.message || "Unknown error");
+        const text = await res.text();
+        console.log(text);
         return;
       }
+
+      const data = await res.json();
+      setUserInfo(data.user);
 
       // ✅ SAVE TOKEN
       await saveToken(data.token);
@@ -93,13 +145,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }),
       });
 
-      const data = await res.json();
-      setUserInfo(data.user);
-
       if (!res.ok) {
-        Alert.alert("Signup failed", data.message || "Unknown error");
+        const text = await res.text();
+        console.log(text);
         return;
       }
+      const data = await res.json();
+      setUserInfo(data.user);
 
       await saveToken(data.token);
       setIsAuthenticated(true);
@@ -120,7 +172,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, signup, logout, BACKEND_URL, userInfo }}
+      value={{
+        isAuthenticated,
+        login,
+        signup,
+        logout,
+        BACKEND_URL,
+        userInfo,
+        theme,
+      }}
     >
       {children}
     </AuthContext.Provider>

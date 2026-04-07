@@ -134,7 +134,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 10,
   },
 
   header: {
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
 
   list: {
     gap: 12,
+    padding: 10,
   },
 
   card: {

@@ -1,58 +1,18 @@
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
   Text,
   FlatList,
-  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
-type Created = {
-  recipeId: string;
-  recipeTitle: string;
-};
-
-type User = {
-  userName: string;
-  firstName: string;
-  lastName: string;
-  height?: string;
-  weight?: number;
-  gender?: string;
-  favoritedRecipes: any[];
-  createdRecipes: Created[];
-};
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Profile() {
-  const { userInfo, BACKEND_URL } = useAuth();
-
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getUserInformation = async () => {
-      try {
-        const res = await fetch(`${BACKEND_URL}/auth/getMyself`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userName: userInfo?.userName,
-          }),
-        });
-
-        const data = await res.json();
-        setUser(data.person);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUserInformation();
-  }, []);
+  const { userInfo } = useAuth();
+  const router = useRouter();
 
   const renderRecipe = ({ item }: { item: Created }) => (
     <View style={styles.recipeCard}>
@@ -60,45 +20,46 @@ export default function Profile() {
     </View>
   );
 
-  if (loading) {
-    return (
-      <SafeAreaProvider>
-        <SafeAreaView style={styles.center}>
-          <ActivityIndicator size="large" />
-        </SafeAreaView>
-      </SafeAreaProvider>
-    );
-  }
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {userInfo?.userName?.charAt(0).toUpperCase()}
+        <View style={styles.headerContainer}>
+          {/* Settings Button */}
+          <TouchableOpacity
+            style={styles.settingsBtn}
+            onPress={() => router.push("/profile/settings")}
+          >
+            <Ionicons name="settings-outline" size={24} color="black" />
+          </TouchableOpacity>
+
+          {/* Avatar + Info */}
+          <View style={styles.header}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {userInfo?.userName?.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+
+            <Text style={styles.username}>{userInfo?.userName}</Text>
+            <Text style={styles.name}>
+              {userInfo?.firstName} {userInfo?.lastName}
             </Text>
           </View>
-
-          <Text style={styles.username}>{userInfo?.userName}</Text>
-          <Text style={styles.name}>
-            {user?.firstName} {user?.lastName}
-          </Text>
         </View>
 
         {/* Stats */}
         <View style={styles.stats}>
           <View style={styles.statBox}>
             <Text style={styles.statNumber}>
-              {user?.createdRecipes?.length || 0}
+              {userInfo?.createdRecipes?.length || 0}
             </Text>
             <Text style={styles.statLabel}>Recipes</Text>
           </View>
 
           <View style={styles.statBox}>
             <Text style={styles.statNumber}>
-              {user?.favoritedRecipes?.length || 0}
+              {userInfo?.favoritedRecipes?.length || 0}
             </Text>
             <Text style={styles.statLabel}>Favorites</Text>
           </View>
@@ -106,20 +67,26 @@ export default function Profile() {
 
         {/* Info */}
         <View style={styles.infoSection}>
-          {user?.height && <Text>Height: {user.height}</Text>}
-          {user?.weight && <Text>Weight: {user.weight}</Text>}
-          {user?.gender && <Text>Gender: {user.gender}</Text>}
+          {userInfo?.height && <Text>Height: {userInfo.height}</Text>}
+          {userInfo?.weight && <Text>Weight: {userInfo.weight}</Text>}
+          {userInfo?.gender && <Text>Gender: {userInfo.gender}</Text>}
         </View>
 
         {/* Created Recipes */}
         <Text style={styles.sectionTitle}>Your Recipes</Text>
 
-        <FlatList
-          data={user?.createdRecipes || []}
-          keyExtractor={(item) => item.recipeId}
-          renderItem={renderRecipe}
-          contentContainerStyle={styles.list}
-        />
+        {userInfo?.createdRecipes?.length > 0 ? (
+          <FlatList
+            data={userInfo?.createdRecipes || []}
+            keyExtractor={(item) => item.recipeId}
+            renderItem={renderRecipe}
+            contentContainerStyle={styles.list}
+          />
+        ) : (
+          <View style={styles.list}>
+            <Text>No Created Recipes Yet</Text>
+          </View>
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -140,6 +107,19 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 20,
+  },
+  headerContainer: {
+    position: "relative",
+    marginBottom: 20,
+  },
+
+  settingsBtn: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    padding: 8,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 20,
   },
 
   avatar: {
