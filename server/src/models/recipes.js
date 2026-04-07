@@ -17,7 +17,7 @@ const recipeSchema = new mongoose.Schema({
   },
   ingredients: [
     {
-      qty: {
+      quantity: {
         type: String,
       },
       unit: {
@@ -36,7 +36,7 @@ const recipeSchema = new mongoose.Schema({
   ],
   cuisine: {
     type: String,
-    enum: ["Italian", "Mexican", "American", "Asian", "Indian"],
+    enum: ["Italian", "Mexican", "American", "Asian", "Indian", "Chinese", "BBQ",],
   },
   categories: [
     {

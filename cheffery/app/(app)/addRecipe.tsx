@@ -39,7 +39,7 @@ const StarRating = ({ rating, setRating }: StarRatingProps) => {
 type Ingredient = {
   quantity: string;
   unit: string;
-  name: string;
+  ingredient: string;
 };
 
 export default function AddRecipe() {
@@ -65,7 +65,7 @@ export default function AddRecipe() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
-  const [name, setName] = useState("");
+  const [ingredient, setIngredient] = useState("");
 
   // ⭐ Steps
   const [steps, setSteps] = useState<string[]>([]);
@@ -119,11 +119,11 @@ export default function AddRecipe() {
   ];
 
   const addIngredient = () => {
-    if (!quantity || !unit || !name) return;
-    setIngredients((prev) => [...prev, { quantity, unit, name }]);
+    if (!quantity || !unit || !ingredient) return;
+    setIngredients((prev) => [...prev, { quantity, unit, ingredient }]);
     setQuantity("");
     setUnit("");
-    setName("");
+    setIngredient("");
   };
 
   const removeIngredient = (index: number) => {
@@ -268,8 +268,8 @@ export default function AddRecipe() {
             style={styles.flexInput}
             placeholder="Ingredient"
             placeholderTextColor="#333"
-            value={name}
-            onChangeText={setName}
+            value={ingredient}
+            onChangeText={setIngredient}
           />
           <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
             <Text style={styles.addButtonText}>+</Text>
@@ -279,7 +279,7 @@ export default function AddRecipe() {
         {ingredients.map((ing, index) => (
           <View key={index} style={styles.listRow}>
             <Text>
-              {ing.quantity} {ing.unit} {ing.name}
+              {ing.quantity} {ing.unit} {ing.ingredient}
             </Text>
             <TouchableOpacity onPress={() => removeIngredient(index)}>
               <Text style={styles.delete}>X</Text>

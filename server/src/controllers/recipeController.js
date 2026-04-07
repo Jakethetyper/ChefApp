@@ -10,7 +10,7 @@ const addRecipe = async (req, res) => {
       prepTime,
       category,
       ingredients,
-      steps,
+      instructions,
       cuisine,
       tasteRating,
       difficultyRating,
@@ -24,7 +24,7 @@ const addRecipe = async (req, res) => {
       prepTime: prepTime || null,
       cookTime: cookTime || null,
       ingredients,
-      instructions: steps,
+      instructions,
       cuisine: cuisine || null,
       categories: category || null,
       tasteRating,
@@ -36,7 +36,7 @@ const addRecipe = async (req, res) => {
     const savedRecipe = await newRecipe.save();
 
     const userToUpdate = await User.findById(userId);
-
+console.log(userToUpdate)
     userToUpdate.createdRecipes.push({
       recipeId: savedRecipe._id,
       recipeTitle: savedRecipe.title,
@@ -61,5 +61,24 @@ const getRecentRecipes = async (req, res) => {
     return res.status(500).json({ message: "Error adding recipe", error });
   }
 };
+const searchRecipes = async (req, res) => {
+  try {
+    const { name } = req.query;
 
-module.exports = { addRecipe, getRecentRecipes };
+    if (!name) {
+      return res.status(400).json({ message: "Search term required" });
+    }
+
+    const recipes = await Recipe.find({
+      title: { $regex: name, $options: "i" } // case-insensitive match
+    });
+
+    return res.status(200).json(recipes);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error searching recipes", error });
+  }
+};
+
+module.exports = { addRecipe, getRecentRecipes, searchRecipes };
+
