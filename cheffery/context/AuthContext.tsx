@@ -28,6 +28,28 @@ type Theme = {
   background: string;
   text: string;
   card: string;
+
+  // 🔑 Core UI
+  primary: string;
+  secondary: string;
+  border: string;
+
+  // 🧾 Text hierarchy
+  textSecondary: string;
+  textMuted: string;
+
+  // 🍳 Cooking-specific vibes
+  accent: string; // highlights (e.g. buttons, tags)
+  success: string; // saved recipes, completed steps
+  warning: string; // timers, hot, caution
+  error: string; // failed actions
+
+  // ⭐ Ratings / favorites
+  favorite: string; // hearts
+  rating: string; // stars
+
+  // 🧱 Surfaces
+  surface: string; // slightly elevated UI
 };
 
 type AuthContextType = {
@@ -47,7 +69,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = "https://2de8-208-38-228-61.ngrok-free.app";
+const BACKEND_URL = "https://fff4-208-38-228-61.ngrok-free.app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,14 +78,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const lightTheme = {
     background: "#ffffff",
-    text: "#000000",
-    card: "#f5f5f5",
+    text: "#111827",
+    card: "#f9fafb",
+
+    primary: "#ea580c", // warm orange (food vibe)
+    secondary: "#2563eb",
+    border: "#e5e7eb",
+
+    textSecondary: "#6b7280",
+    textMuted: "#9ca3af",
+
+    accent: "#f97316", // bright orange
+    success: "#16a34a",
+    warning: "#f59e0b",
+    error: "#dc2626",
+
+    favorite: "#ef4444",
+    rating: "#fbbf24",
+
+    surface: "#ffffff",
   };
 
   const darkTheme = {
     background: "#121212",
-    text: "#ffffff",
+    text: "#f9fafb",
     card: "#1e1e1e",
+
+    primary: "#fb923c",
+    secondary: "#60a5fa",
+    border: "#2a2a2a",
+
+    textSecondary: "#9ca3af",
+    textMuted: "#6b7280",
+
+    accent: "#f97316",
+    success: "#22c55e",
+    warning: "#fbbf24",
+    error: "#ef4444",
+
+    favorite: "#f87171",
+    rating: "#facc15",
+
+    surface: "#1a1a1a",
   };
 
   const scheme = useColorScheme();

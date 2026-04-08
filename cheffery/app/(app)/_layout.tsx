@@ -3,7 +3,7 @@ import { Redirect, Tabs } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function AppLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, theme } = useAuth();
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)/login" />;
@@ -13,10 +13,11 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#1e3a8a", // deep blue
-        tabBarInactiveTintColor: "#6b7280", // gray
+        tabBarActiveTintColor: theme.primary, // deep blue
+        tabBarInactiveTintColor: theme.textMuted, // gray
         tabBarStyle: {
-          backgroundColor: "#f9fafb", // light gray/white
+          backgroundColor: theme.background,
+          borderTopColor: theme.border, // light gray/white
           borderTopWidth: 0,
           elevation: 5,
           height: 80,

@@ -6,187 +6,227 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function Profile() {
-  const { userInfo } = useAuth();
+  const { userInfo, theme } = useAuth();
+  const styles = createStyles(theme);
   const router = useRouter();
 
-  const renderRecipe = ({ item }: { item: Created }) => (
+  const renderRecipe = ({ item }: any) => (
     <View style={styles.recipeCard}>
       <Text style={styles.recipeTitle}>{item.recipeTitle}</Text>
     </View>
   );
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.headerContainer}>
-          {/* Settings Button */}
-          <TouchableOpacity
-            style={styles.settingsBtn}
-            onPress={() => router.push("/profile/settings")}
-          >
-            <Ionicons name="settings-outline" size={24} color="black" />
-          </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          style={styles.settingsBtn}
+          onPress={() => router.push("/profile/settings")}
+        >
+          <Ionicons name="settings-outline" size={22} color={theme.text} />
+        </TouchableOpacity>
 
-          {/* Avatar + Info */}
-          <View style={styles.header}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {userInfo?.userName?.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-
-            <Text style={styles.username}>{userInfo?.userName}</Text>
-            <Text style={styles.name}>
-              {userInfo?.firstName} {userInfo?.lastName}
+        <View style={styles.header}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {userInfo?.userName?.charAt(0).toUpperCase()}
             </Text>
           </View>
+
+          <Text style={styles.username}>{userInfo?.userName}</Text>
+          <Text style={styles.name}>
+            {userInfo?.firstName} {userInfo?.lastName}
+          </Text>
+        </View>
+      </View>
+
+      {/* Stats */}
+      <View style={styles.stats}>
+        <View style={styles.statBox}>
+          <Text style={styles.statNumber}>
+            {userInfo?.createdRecipes?.length || 0}
+          </Text>
+          <Text style={styles.statLabel}>Recipes</Text>
         </View>
 
-        {/* Stats */}
-        <View style={styles.stats}>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>
-              {userInfo?.createdRecipes?.length || 0}
-            </Text>
-            <Text style={styles.statLabel}>Recipes</Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>
-              {userInfo?.favoritedRecipes?.length || 0}
-            </Text>
-            <Text style={styles.statLabel}>Favorites</Text>
-          </View>
+        <View style={styles.statBox}>
+          <Text style={styles.statNumber}>
+            {userInfo?.favoritedRecipes?.length || 0}
+          </Text>
+          <Text style={styles.statLabel}>Favorites</Text>
         </View>
+      </View>
 
-        {/* Info */}
-        <View style={styles.infoSection}>
-          {userInfo?.height && <Text>Height: {userInfo.height}</Text>}
-          {userInfo?.weight && <Text>Weight: {userInfo.weight}</Text>}
-          {userInfo?.gender && <Text>Gender: {userInfo.gender}</Text>}
+      {/* Info */}
+      {(userInfo?.height || userInfo?.weight || userInfo?.gender) && (
+        <View style={styles.infoCard}>
+          {userInfo?.height && (
+            <Text style={styles.infoText}>Height: {userInfo.height}</Text>
+          )}
+          {userInfo?.weight && (
+            <Text style={styles.infoText}>Weight: {userInfo.weight}</Text>
+          )}
+          {userInfo?.gender && (
+            <Text style={styles.infoText}>Gender: {userInfo.gender}</Text>
+          )}
         </View>
+      )}
 
-        {/* Created Recipes */}
-        <Text style={styles.sectionTitle}>Your Recipes</Text>
+      {/* Recipes */}
+      <Text style={styles.sectionTitle}>Your Recipes</Text>
 
-        {userInfo?.createdRecipes?.length > 0 ? (
-          <FlatList
-            data={userInfo?.createdRecipes || []}
-            keyExtractor={(item) => item.recipeId}
-            renderItem={renderRecipe}
-            contentContainerStyle={styles.list}
-          />
-        ) : (
-          <View style={styles.list}>
-            <Text>No Created Recipes Yet</Text>
-          </View>
-        )}
-      </SafeAreaView>
-    </SafeAreaProvider>
+      {userInfo?.createdRecipes?.length > 0 ? (
+        <FlatList
+          data={userInfo.createdRecipes}
+          keyExtractor={(item) => item.recipeId}
+          renderItem={renderRecipe}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No recipes yet</Text>
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+      backgroundColor: theme.background,
+    },
 
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+    headerContainer: {
+      position: "relative",
+      marginBottom: 20,
+    },
 
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerContainer: {
-    position: "relative",
-    marginBottom: 20,
-  },
+    settingsBtn: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      padding: 8,
+      backgroundColor: theme.surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
 
-  settingsBtn: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    padding: 8,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 20,
-  },
+    header: {
+      alignItems: "center",
+      marginTop: 10,
+    },
 
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#ddd",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
+    avatar: {
+      width: 90,
+      height: 90,
+      borderRadius: 45,
+      backgroundColor: theme.primary + "20",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 10,
+    },
 
-  avatarText: {
-    fontSize: 28,
-    fontWeight: "bold",
-  },
+    avatarText: {
+      fontSize: 32,
+      fontWeight: "700",
+      color: theme.primary,
+    },
 
-  username: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
+    username: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.text,
+    },
 
-  name: {
-    color: "gray",
-  },
+    name: {
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
 
-  stats: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 20,
-  },
+    stats: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      marginVertical: 20,
+      backgroundColor: theme.card,
+      paddingVertical: 16,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
 
-  statBox: {
-    alignItems: "center",
-  },
+    statBox: {
+      alignItems: "center",
+    },
 
-  statNumber: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
+    statNumber: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.text,
+    },
 
-  statLabel: {
-    color: "gray",
-  },
+    statLabel: {
+      color: theme.textSecondary,
+      marginTop: 4,
+      fontSize: 12,
+    },
 
-  infoSection: {
-    marginBottom: 20,
-  },
+    infoCard: {
+      backgroundColor: theme.card,
+      padding: 14,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      marginBottom: 16,
+    },
 
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
+    infoText: {
+      color: theme.text,
+      marginBottom: 4,
+    },
 
-  list: {
-    gap: 10,
-  },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.text,
+      marginBottom: 10,
+    },
 
-  recipeCard: {
-    backgroundColor: "#f5f5f5",
-    padding: 12,
-    borderRadius: 10,
-  },
+    list: {
+      paddingBottom: 20,
+      gap: 12,
+    },
 
-  recipeTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-});
+    recipeCard: {
+      backgroundColor: theme.card,
+      padding: 14,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+
+    recipeTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: theme.text,
+    },
+
+    emptyContainer: {
+      marginTop: 40,
+      alignItems: "center",
+    },
+
+    emptyText: {
+      color: theme.textMuted,
+    },
+  });

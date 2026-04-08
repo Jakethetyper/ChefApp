@@ -10,22 +10,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// ⭐ Star Rating Component
-type StarRatingProps = {
-  rating: number;
-  setRating: (value: number) => void;
-};
-
-const StarRating = ({ rating, setRating }: StarRatingProps) => {
+// ⭐ Star Rating
+const StarRating = ({ rating, setRating, theme }: any) => {
   return (
     <View style={{ flexDirection: "row" }}>
       {[1, 2, 3, 4, 5].map((star) => (
         <TouchableOpacity key={star} onPress={() => setRating(star)}>
           <Text
             style={{
-              fontSize: 28,
+              fontSize: 26,
               marginRight: 6,
-              color: star <= rating ? "#FFD700" : "#999",
+              color: star <= rating ? theme.rating : theme.textMuted,
             }}
           >
             ★
@@ -36,22 +31,15 @@ const StarRating = ({ rating, setRating }: StarRatingProps) => {
   );
 };
 
-type Ingredient = {
-  quantity: string;
-  unit: string;
-  ingredient: string;
-};
-
 export default function AddRecipe() {
-  const { BACKEND_URL, userInfo } = useAuth();
+  const { BACKEND_URL, userInfo, theme } = useAuth();
+  const styles = createStyles(theme);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
   const [cookTime, setCookTime] = useState("");
   const [prepTime, setPrepTime] = useState("");
 
-  // ⭐ Two custom dropdowns
   const [mealType, setMealType] = useState("");
   const [showMealMenu, setShowMealMenu] = useState(false);
 
@@ -61,61 +49,37 @@ export default function AddRecipe() {
   const [tasteRating, setTasteRating] = useState(0);
   const [difficultyRating, setDifficultyRating] = useState(0);
 
-  // ⭐ Ingredients
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<any[]>([]);
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
   const [ingredient, setIngredient] = useState("");
 
-  // ⭐ Steps
   const [steps, setSteps] = useState<string[]>([]);
   const [newStep, setNewStep] = useState("");
 
   const saveRecipe = async () => {
     try {
-      const sendRecipe = await fetch(`${BACKEND_URL}/auth/addRecipe`, {
+      await fetch(`${BACKEND_URL}/auth/addRecipe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           description,
-          prepTime: prepTime || null,
-          cookTime: cookTime || null,
+          prepTime,
+          cookTime,
           ingredients,
           instructions: steps,
-          cuisine: cuisineType || null,
+          cuisine: cuisineType,
           tasteRating,
           difficultyRating,
           userId: userInfo?.userId,
           user: userInfo?.userName,
         }),
       });
-
-      const data = await sendRecipe.json();
     } catch (error) {
       console.log(error);
     }
   };
-
-  const mealOptions = [
-    "Breakfast",
-    "Lunch",
-    "Dinner",
-    "Snack",
-    "Dessert",
-    "Drink",
-  ];
-
-  const cuisineOptions = [
-    "Mexican",
-    "Italian",
-    "Greek",
-    "Chinese",
-    "Japanese",
-    "Indian",
-    "BBQ",
-    "Seafood",
-  ];
 
   const addIngredient = () => {
     if (!quantity || !ingredient) return;
@@ -125,148 +89,74 @@ export default function AddRecipe() {
     setIngredient("");
   };
 
-  const removeIngredient = (index: number) => {
-    setIngredients((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const addStep = () => {
     if (!newStep) return;
     setSteps((prev) => [...prev, newStep]);
     setNewStep("");
   };
 
-  const removeStep = (index: number) => {
-    setSteps((prev) => prev.filter((_, i) => i !== index));
-  };
-
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
-        <Text style={styles.header}>Add Recipe</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={styles.header}>🍳 Add Recipe</Text>
 
-        {/* Title */}
+        {/* Inputs */}
         <TextInput
           style={styles.input}
           placeholder="Recipe Title"
-          placeholderTextColor="#333"
+          placeholderTextColor={theme.textMuted}
           value={title}
           onChangeText={setTitle}
         />
 
-        {/* Description */}
         <TextInput
-          style={[styles.input, { height: 80 }]}
-          placeholder="Short Description"
-          placeholderTextColor="#333"
+          style={[styles.input, styles.textArea]}
+          placeholder="Description"
+          placeholderTextColor={theme.textMuted}
           value={description}
           onChangeText={setDescription}
           multiline
         />
 
-        {/* Cook Time */}
-        <TextInput
-          style={styles.input}
-          placeholder="Cook Time (e.g., 30 min)"
-          placeholderTextColor="#333"
-          value={cookTime}
-          onChangeText={setCookTime}
-        />
+        <View style={styles.row}>
+          <TextInput
+            style={styles.halfInput}
+            placeholder="Prep Time"
+            placeholderTextColor={theme.textMuted}
+            value={prepTime}
+            onChangeText={setPrepTime}
+          />
+          <TextInput
+            style={styles.halfInput}
+            placeholder="Cook Time"
+            placeholderTextColor={theme.textMuted}
+            value={cookTime}
+            onChangeText={setCookTime}
+          />
+        </View>
 
-        {/* Prep Time */}
-        <TextInput
-          style={styles.input}
-          placeholder="Prep Time (e.g., 15 min)"
-          placeholderTextColor="#333"
-          value={prepTime}
-          onChangeText={setPrepTime}
-        />
-
-        {/* ⭐ Meal Type Dropdown */}
-        <Text style={styles.sectionTitle}>Meal Type</Text>
-
-        <TouchableOpacity
-          style={styles.dropdown}
-          onPress={() => setShowMealMenu(!showMealMenu)}
-        >
-          <Text
-            style={mealType ? styles.dropdownText : styles.dropdownPlaceholder}
-          >
-            {mealType || "Select meal type"}
-          </Text>
-        </TouchableOpacity>
-
-        {showMealMenu && (
-          <View style={styles.dropdownMenu}>
-            {mealOptions.map((item) => (
-              <TouchableOpacity
-                key={item}
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMealType(item);
-                  setShowMealMenu(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>{item}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* ⭐ Cuisine Type Dropdown */}
-        <Text style={styles.sectionTitle}>Cuisine Type</Text>
-
-        <TouchableOpacity
-          style={styles.dropdown}
-          onPress={() => setShowCuisineMenu(!showCuisineMenu)}
-        >
-          <Text
-            style={
-              cuisineType ? styles.dropdownText : styles.dropdownPlaceholder
-            }
-          >
-            {cuisineType || "Select cuisine type"}
-          </Text>
-        </TouchableOpacity>
-
-        {showCuisineMenu && (
-          <View style={styles.dropdownMenu}>
-            {cuisineOptions.map((item) => (
-              <TouchableOpacity
-                key={item}
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setCuisineType(item);
-                  setShowCuisineMenu(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>{item}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* ⭐ Ingredients */}
+        {/* Ingredients */}
         <Text style={styles.sectionTitle}>Ingredients</Text>
 
         <View style={styles.row}>
           <TextInput
             style={styles.smallInput}
             placeholder="Qty"
-            placeholderTextColor="#333"
+            placeholderTextColor={theme.textMuted}
             value={quantity}
             onChangeText={setQuantity}
           />
           <TextInput
             style={styles.smallInput}
             placeholder="Unit"
-            placeholderTextColor="#333"
+            placeholderTextColor={theme.textMuted}
             value={unit}
             onChangeText={setUnit}
           />
           <TextInput
             style={styles.flexInput}
             placeholder="Ingredient"
-            placeholderTextColor="#333"
+            placeholderTextColor={theme.textMuted}
             value={ingredient}
             onChangeText={setIngredient}
           />
@@ -275,25 +165,22 @@ export default function AddRecipe() {
           </TouchableOpacity>
         </View>
 
-        {ingredients.map((ing, index) => (
-          <View key={index} style={styles.listRow}>
-            <Text>
+        {ingredients.map((ing, i) => (
+          <View key={i} style={styles.listRow}>
+            <Text style={styles.listText}>
               {ing.quantity} {ing.unit} {ing.ingredient}
             </Text>
-            <TouchableOpacity onPress={() => removeIngredient(index)}>
-              <Text style={styles.delete}>X</Text>
-            </TouchableOpacity>
           </View>
         ))}
 
-        {/* ⭐ Steps */}
+        {/* Steps */}
         <Text style={styles.sectionTitle}>Steps</Text>
 
         <View style={styles.row}>
           <TextInput
             style={styles.flexInput}
             placeholder="Add a step"
-            placeholderTextColor="#333"
+            placeholderTextColor={theme.textMuted}
             value={newStep}
             onChangeText={setNewStep}
           />
@@ -302,34 +189,34 @@ export default function AddRecipe() {
           </TouchableOpacity>
         </View>
 
-        {steps.map((step, index) => (
-          <View key={index} style={styles.listRow}>
-            <Text>
-              {index + 1}. {step}
-            </Text>
-            <TouchableOpacity onPress={() => removeStep(index)}>
-              <Text style={styles.delete}>X</Text>
-            </TouchableOpacity>
-          </View>
+        {steps.map((step, i) => (
+          <Text key={i} style={styles.listText}>
+            {i + 1}. {step}
+          </Text>
         ))}
 
-        {/* ⭐ Ratings Row */}
+        {/* Ratings */}
         <View style={styles.ratingRow}>
-          <View style={{ flex: 1 }}>
+          <View>
             <Text style={styles.sectionTitle}>Taste</Text>
-            <StarRating rating={tasteRating} setRating={setTasteRating} />
+            <StarRating
+              rating={tasteRating}
+              setRating={setTasteRating}
+              theme={theme}
+            />
           </View>
 
-          <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <View>
             <Text style={styles.sectionTitle}>Difficulty</Text>
             <StarRating
               rating={difficultyRating}
               setRating={setDifficultyRating}
+              theme={theme}
             />
           </View>
         </View>
 
-        {/* Save Button */}
+        {/* Save */}
         <TouchableOpacity style={styles.saveButton} onPress={saveRecipe}>
           <Text style={styles.saveButtonText}>Save Recipe</Text>
         </TouchableOpacity>
@@ -338,131 +225,120 @@ export default function AddRecipe() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  input: {
-    backgroundColor: "#f2f2f2",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: "#333",
-    color: "#000",
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 4,
-    color: "#000",
-  },
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      paddingHorizontal: 16,
+    },
 
-  // ⭐ Custom Dropdown Styles
-  dropdown: {
-    borderWidth: 2,
-    borderColor: "#333",
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: "#e6e6e6",
-    marginBottom: 6,
-  },
-  dropdownText: {
-    color: "#000",
-    fontSize: 16,
-  },
-  dropdownPlaceholder: {
-    color: "#777",
-    fontSize: 16,
-  },
-  dropdownMenu: {
-    borderWidth: 2,
-    borderColor: "#333",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    marginBottom: 12,
-  },
-  dropdownItem: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-  },
-  dropdownItemText: {
-    color: "#000",
-    fontSize: 16,
-  },
+    header: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: theme.text,
+      marginBottom: 16,
+    },
 
-  // ⭐ Ingredients + Steps
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  smallInput: {
-    width: 60,
-    backgroundColor: "#f2f2f2",
-    padding: 10,
-    borderRadius: 8,
-    marginRight: 8,
-    borderWidth: 2,
-    borderColor: "#333",
-    color: "#000",
-  },
-  flexInput: {
-    flex: 1,
-    backgroundColor: "#f2f2f2",
-    padding: 10,
-    borderRadius: 8,
-    marginRight: 8,
-    borderWidth: 2,
-    borderColor: "#333",
-    color: "#000",
-  },
-  addButton: {
-    backgroundColor: "#4CAF50",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  listRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-  },
-  delete: {
-    color: "red",
-    fontWeight: "bold",
-  },
+    input: {
+      backgroundColor: theme.surface,
+      borderRadius: 14,
+      padding: 14,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: theme.border,
+      color: theme.text,
+    },
 
-  ratingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 20,
-  },
+    textArea: {
+      height: 90,
+    },
 
-  saveButton: {
-    backgroundColor: "#2196F3",
-    padding: 16,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  saveButtonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-});
+    row: {
+      flexDirection: "row",
+      gap: 8,
+      marginBottom: 12,
+    },
+
+    halfInput: {
+      flex: 1,
+      backgroundColor: theme.surface,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      color: theme.text,
+    },
+
+    smallInput: {
+      width: 60,
+      backgroundColor: theme.surface,
+      borderRadius: 12,
+      padding: 10,
+      borderWidth: 1,
+      borderColor: theme.border,
+      color: theme.text,
+    },
+
+    flexInput: {
+      flex: 1,
+      backgroundColor: theme.surface,
+      borderRadius: 12,
+      padding: 10,
+      borderWidth: 1,
+      borderColor: theme.border,
+      color: theme.text,
+    },
+
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: theme.text,
+      marginTop: 10,
+      marginBottom: 6,
+    },
+
+    addButton: {
+      backgroundColor: theme.primary,
+      paddingHorizontal: 14,
+      justifyContent: "center",
+      borderRadius: 10,
+    },
+
+    addButtonText: {
+      color: "#fff",
+      fontSize: 18,
+      fontWeight: "bold",
+    },
+
+    listRow: {
+      paddingVertical: 6,
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+    },
+
+    listText: {
+      color: theme.text,
+    },
+
+    ratingRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 20,
+    },
+
+    saveButton: {
+      backgroundColor: theme.primary,
+      padding: 16,
+      borderRadius: 14,
+      marginTop: 30,
+      marginBottom: 40,
+    },
+
+    saveButtonText: {
+      color: "#fff",
+      textAlign: "center",
+      fontSize: 18,
+      fontWeight: "600",
+    },
+  });
