@@ -12,6 +12,11 @@ type Created = {
   recipeTitle: string;
 };
 
+type WeeklyActions = {
+  weekly: string;
+  amount: number;
+};
+
 type User = {
   userId: string;
   userName: string;
@@ -22,6 +27,7 @@ type User = {
   gender?: string;
   favoritedRecipes: any[];
   createdRecipes: Created[];
+  activity: WeeklyActions;
 };
 
 type Theme = {
@@ -69,7 +75,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = "https://fff4-208-38-228-61.ngrok-free.app";
+const BACKEND_URL = "https://2acb-208-38-228-61.ngrok-free.app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

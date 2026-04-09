@@ -135,6 +135,81 @@ export default function AddRecipe() {
           />
         </View>
 
+        {/* Meal Type */}
+        <Text style={styles.sectionTitle}>Meal Type</Text>
+
+        <TouchableOpacity
+          style={styles.dropdown}
+          onPress={() => setShowMealMenu(!showMealMenu)}
+        >
+          <Text
+            style={mealType ? styles.dropdownText : styles.dropdownPlaceholder}
+          >
+            {mealType || "Select meal type"}
+          </Text>
+        </TouchableOpacity>
+
+        {showMealMenu && (
+          <View style={styles.dropdownMenu}>
+            {["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Drink"].map(
+              (item) => (
+                <TouchableOpacity
+                  key={item}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setMealType(item);
+                    setShowMealMenu(false);
+                  }}
+                >
+                  <Text style={styles.dropdownItemText}>{item}</Text>
+                </TouchableOpacity>
+              ),
+            )}
+          </View>
+        )}
+
+        {/* Cuisine Type */}
+        <Text style={styles.sectionTitle}>Cuisine</Text>
+
+        <TouchableOpacity
+          style={styles.dropdown}
+          onPress={() => setShowCuisineMenu(!showCuisineMenu)}
+        >
+          <Text
+            style={
+              cuisineType ? styles.dropdownText : styles.dropdownPlaceholder
+            }
+          >
+            {cuisineType || "Select cuisine"}
+          </Text>
+        </TouchableOpacity>
+
+        {showCuisineMenu && (
+          <View style={styles.dropdownMenu}>
+            {[
+              "Mexican",
+              "Italian",
+              "Greek",
+              "Chinese",
+              "Japanese",
+              "Indian",
+              "BBQ",
+              "Seafood",
+            ].map((item) => (
+              <TouchableOpacity
+                key={item}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setCuisineType(item);
+                  setShowCuisineMenu(false);
+                }}
+              >
+                <Text style={styles.dropdownItemText}>{item}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         {/* Ingredients */}
         <Text style={styles.sectionTitle}>Ingredients</Text>
 
@@ -278,6 +353,45 @@ const createStyles = (theme: any) =>
       borderWidth: 1,
       borderColor: theme.border,
       color: theme.text,
+    },
+
+    dropdown: {
+      backgroundColor: theme.surface,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      marginBottom: 6,
+    },
+
+    dropdownText: {
+      color: theme.text,
+      fontSize: 14,
+    },
+
+    dropdownPlaceholder: {
+      color: theme.textMuted,
+      fontSize: 14,
+    },
+
+    dropdownMenu: {
+      backgroundColor: theme.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      marginBottom: 12,
+      overflow: "hidden",
+    },
+
+    dropdownItem: {
+      padding: 14,
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+    },
+
+    dropdownItemText: {
+      color: theme.text,
+      fontSize: 14,
     },
 
     flexInput: {

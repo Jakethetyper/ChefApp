@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
+  activity: {
+    weekly: {
+      type: String,
+    },
+    amount: {
+      type: Number,
+    },
+  },
   firstName: {
     type: String,
     required: true,

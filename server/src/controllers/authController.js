@@ -77,4 +77,33 @@ const me = async (req, res) => {
   }
 };
 
-module.exports = { login, signup, me };
+const updateUser = async (req, res) => {
+  try {
+    const { form, weight, userName, activity } = req.body;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { userName },
+      {
+        $set: {
+          userName: form.userName,
+          height: form.height,
+          weight: weight,
+          gender: form.gender,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          activity,
+        },
+      },
+      { new: true },
+    );
+
+    await updatedUser.save();
+
+    return res.status(200).json({ message: "Updated User", updateUser });
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({ message: "Error updating user", error });
+  }
+};
+
+module.exports = { login, signup, me, updateUser };

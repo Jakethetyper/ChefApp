@@ -6,8 +6,10 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
 type Recipe = {
   _id: string;
@@ -55,7 +57,10 @@ export default function Home() {
       (item.cookTime ? Number(item.cookTime) : 0);
 
     return (
-      <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.navigate("/search/recipe")}
+      >
         {/* Title */}
         <Text style={styles.title}>{item.title}</Text>
 
@@ -107,7 +112,7 @@ export default function Home() {
 
         {/* Chef */}
         {item.chefName && <Text style={styles.chef}>By {item.chefName}</Text>}
-      </View>
+      </TouchableOpacity>
     );
   };
 
