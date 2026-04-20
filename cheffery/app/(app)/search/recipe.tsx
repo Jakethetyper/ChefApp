@@ -7,61 +7,72 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+
+type Recipe = {
+  _id: string;
+  title: string;
+  description?: string;
+  cuisine?: string;
+  categories?: string[];
+  prepTime?: string;
+  cookTime?: string;
+  ingredients?: { ingredient: string }[];
+  tasteRating?: number;
+  difficultyRating?: number;
+  chefName?: string;
+};
 
 export default function Recipe() {
-  const { theme } = useAuth();
+  const { data } = useLocalSearchParams();
+  const { theme, BACKEND_URL, userInfo } = useAuth();
   const styles = createStyles(theme);
 
-  // 🔥 Mock data (replace with route params / API)
-  const recipe = {
-    title: "Spicy Chicken Tacos",
-    description: "Delicious tacos packed with flavor and spice.",
-    prepTime: "15",
-    cookTime: "20",
-    cuisine: "Mexican",
-    categories: ["Dinner", "Entree"],
-    ingredients: [
-      { quantity: "2", unit: "lb", ingredient: "chicken" },
-      { quantity: "1", unit: "tbsp", ingredient: "chili powder" },
-      { quantity: "6", unit: "", ingredient: "tortillas" },
-    ],
-    instructions: [
-      "Season the chicken with spices.",
-      "Cook chicken in a pan until done.",
-      "Warm tortillas and assemble tacos.",
-    ],
-    tasteRating: 4,
-    difficultyRating: 2,
-    chefName: "Jake",
-  };
+  const recipeData = JSON.parse(data);
 
   const totalTime =
-    (recipe.prepTime ? Number(recipe.prepTime) : 0) +
-    (recipe.cookTime ? Number(recipe.cookTime) : 0);
+    (recipeData.prepTime ? Number(recipeData.prepTime) : 0) +
+    (recipeData.cookTime ? Number(recipeData.cookTime) : 0);
 
-  const addToShoppingList = () => {
-    console.log("Add ingredients to shopping list");
+  const addToShoppingList = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/auth/addGroceries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredients: recipeData?.ingredients,
+          userName: userInfo?.userName,
+          recipeName: recipeData.title,
+          recipeId: recipeData._id,
+        }),
+      });
+
+      const data = await response.json();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <Text style={styles.title}>{recipe.title}</Text>
+        <Text style={styles.title}>{recipeData.title}</Text>
 
-        {recipe.description && (
-          <Text style={styles.description}>{recipe.description}</Text>
+        {recipeData.description && (
+          <Text style={styles.description}>{recipeData.description}</Text>
         )}
 
         {/* Tags */}
         <View style={styles.tagContainer}>
-          {recipe.cuisine && (
+          {recipeData.cuisine && (
             <View style={styles.tagPrimary}>
-              <Text style={styles.tagText}>{recipe.cuisine}</Text>
+              <Text style={styles.tagText}>{recipeData.cuisine}</Text>
             </View>
           )}
 
-          {recipe.categories?.map((cat, i) => (
+          {recipeData.categories?.map((cat, i) => (
             <View key={i} style={styles.tag}>
               <Text style={styles.tagText}>{cat}</Text>
             </View>
@@ -71,19 +82,21 @@ export default function Recipe() {
         {/* Meta */}
         <View style={styles.metaRow}>
           <Text style={styles.meta}>⏱ {totalTime} min</Text>
-          <Text style={styles.meta}>👨‍🍳 {recipe.chefName}</Text>
+          <Text style={styles.meta}>👨‍🍳 {recipeData.chefName}</Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Text style={styles.rating}>⭐ {recipe.tasteRating}</Text>
-          <Text style={styles.difficulty}>⚙️ {recipe.difficultyRating}</Text>
+          <Text style={styles.rating}>⭐ {recipeData.tasteRating}</Text>
+          <Text style={styles.difficulty}>
+            ⚙️ {recipeData.difficultyRating}
+          </Text>
         </View>
 
         {/* Ingredients */}
         <Text style={styles.sectionTitle}>Ingredients</Text>
 
         <View style={styles.card}>
-          {recipe.ingredients.map((ing, i) => (
+          {recipeData.ingredients.map((ing, i) => (
             <Text key={i} style={styles.listText}>
               • {ing.quantity} {ing.unit} {ing.ingredient}
             </Text>
@@ -94,7 +107,7 @@ export default function Recipe() {
         <Text style={styles.sectionTitle}>Instructions</Text>
 
         <View style={styles.card}>
-          {recipe.instructions.map((step, i) => (
+          {recipeData.instructions.map((step, i) => (
             <Text key={i} style={styles.stepText}>
               {i + 1}. {step}
             </Text>

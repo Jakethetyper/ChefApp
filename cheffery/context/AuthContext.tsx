@@ -17,6 +17,28 @@ type WeeklyActions = {
   amount: number;
 };
 
+type Ingredient = {
+  quantity: string;
+  unit: string;
+  ingredient: string;
+};
+
+type recipeHolder = {
+  recipe: string;
+  recipeId: string;
+};
+
+type seasoning = {
+  owned: [string];
+  needed: [string];
+};
+
+type Groceries = {
+  ingredients: Ingredient[];
+  seasonings: seasoning;
+  recipes: recipeHolder[];
+};
+
 type User = {
   userId: string;
   userName: string;
@@ -28,6 +50,7 @@ type User = {
   favoritedRecipes: any[];
   createdRecipes: Created[];
   activity: WeeklyActions;
+  groceryList: Groceries;
 };
 
 type Theme = {
@@ -35,27 +58,21 @@ type Theme = {
   text: string;
   card: string;
 
-  // 🔑 Core UI
   primary: string;
   secondary: string;
   border: string;
 
-  // 🧾 Text hierarchy
   textSecondary: string;
   textMuted: string;
 
-  // 🍳 Cooking-specific vibes
-  accent: string; // highlights (e.g. buttons, tags)
-  success: string; // saved recipes, completed steps
-  warning: string; // timers, hot, caution
-  error: string; // failed actions
+  accent: string;
+  success: string;
+  warning: string;
+  error: string;
 
-  // ⭐ Ratings / favorites
-  favorite: string; // hearts
-  rating: string; // stars
-
-  // 🧱 Surfaces
-  surface: string; // slightly elevated UI
+  favorite: string;
+  rating: string;
+  surface: string;
 };
 
 type AuthContextType = {
@@ -75,7 +92,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = "https://2acb-208-38-228-61.ngrok-free.app";
+const BACKEND_URL = "https://843c-208-38-228-61.ngrok-free.app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

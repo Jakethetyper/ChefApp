@@ -13,6 +13,12 @@ const {
   searchRecipes,
 } = require("../controllers/recipeController");
 
+const {
+  addGroceries,
+  removeGroceryItems,
+  addSeasoning,
+} = require("../controllers/groceryController");
+
 const router = express.Router();
 
 router.post("/signup", signup);
@@ -27,5 +33,9 @@ router.post("/getrecentrecipes", getRecentRecipes);
 
 // Search recipes by name
 router.get("/search", searchRecipes);
+
+router.post("/addSeasoning", addSeasoning);
+router.post("/addGroceries", addGroceries);
+router.post("/removeGroceryItems", removeGroceryItems);
 
 module.exports = router;

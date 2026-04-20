@@ -52,6 +52,16 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
+        name="groceriesScreen"
+        options={{
+          headerShown: false,
+          title: "Groceries",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="shop" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="addRecipe"
         options={{
           headerShown: false,

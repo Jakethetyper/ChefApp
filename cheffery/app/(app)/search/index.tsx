@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 // -----------------------------
 // Types
@@ -40,6 +41,9 @@ export default function SearchScreen() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [filters, setFilters] = useState();
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchRecipes = async (searchTerm: string) => {
     if (!searchTerm.trim()) {
@@ -102,8 +106,6 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>🔍 Search Recipes</Text>
-
       {/* Search Input */}
       <View style={styles.searchWrapper}>
         <TextInput
@@ -113,6 +115,13 @@ export default function SearchScreen() {
           value={query}
           onChangeText={handleSearchChange}
         />
+        <View>
+          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+            <Ionicons name="filter" size={30} color={theme.primary} />
+          </TouchableOpacity>
+
+          {showFilters && <View style={styles.filterMenu}></View>}
+        </View>
       </View>
 
       {/* Loading */}
@@ -158,6 +167,10 @@ const createStyles = (theme: any) =>
 
     searchWrapper: {
       marginBottom: 16,
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
 
     input: {
@@ -168,6 +181,7 @@ const createStyles = (theme: any) =>
       borderWidth: 1,
       borderColor: theme.border,
       fontSize: 14,
+      minWidth: "80%",
     },
 
     card: {

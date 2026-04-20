@@ -54,6 +54,35 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  groceryList: {
+    ingredients: [
+      {
+        quantity: {
+          type: String,
+        },
+        unit: {
+          type: String,
+        },
+        ingredient: {
+          type: String,
+        },
+      },
+    ],
+    seasonings: {
+      owned: { type: [String], default: [] },
+      needed: { type: [String], default: [] },
+    },
+    recipes: [
+      {
+        recipe: {
+          type: String,
+        },
+        recipeId: {
+          type: mongoose.Schema.Types.ObjectId,
+        },
+      },
+    ],
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

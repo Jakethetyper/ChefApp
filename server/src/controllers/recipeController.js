@@ -1,4 +1,5 @@
 const Recipe = require("../models/recipes");
+const user = require("../models/user");
 const User = require("../models/user");
 
 const addRecipe = async (req, res) => {
@@ -85,4 +86,8 @@ const searchRecipes = async (req, res) => {
   }
 };
 
-module.exports = { addRecipe, getRecentRecipes, searchRecipes };
+module.exports = {
+  addRecipe,
+  getRecentRecipes,
+  searchRecipes,
+};

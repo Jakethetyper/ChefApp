@@ -59,7 +59,12 @@ export default function Home() {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.navigate("/search/recipe")}
+        onPress={() =>
+          router.replace({
+            pathname: "/search/recipe",
+            params: { data: JSON.stringify(item) },
+          })
+        }
       >
         {/* Title */}
         <Text style={styles.title}>{item.title}</Text>
