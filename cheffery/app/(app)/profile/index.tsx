@@ -22,7 +22,7 @@ export default function Profile() {
   const styles = createStyles(theme);
   const router = useRouter();
 
-  const [seasoningActive, setSeasoningActive] = useState(false);
+  const [seasoningActive, setSeasoningActive] = useState(true);
   const [addingNew, setAddingNew] = useState(false);
   const [recipeView, setRecipeView] = useState(false);
   const [newIngredient, setNewIngredient] = useState("");
@@ -39,12 +39,19 @@ export default function Profile() {
     .slice(0, 6);
 
   useEffect(() => {
+    if (!userInfo) {
+      return;
+    }
     const dataOwned = [...userInfo?.groceryList.seasonings.owned].sort();
     setArrangedIngredientsOwned(dataOwned);
 
     const dataNeeded = [...userInfo?.groceryList.seasonings.needed].sort();
     setArrangedIngredientsNeeded(dataNeeded);
-  }, []);
+  }, [
+    userInfo?.groceryList.seasonings.owned,
+    userInfo?.groceryList.seasonings.needed,
+    userInfo,
+  ]);
 
   const renderRecipe = ({ item }: any) => (
     <View style={styles.recipeCard}>
@@ -109,34 +116,61 @@ export default function Profile() {
         </View>
 
         {/* Recipes */}
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Text style={styles.sectionTitle}>Your Recipes</Text>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 12,
-            }}
+        <View style={styles.toggleWrapper}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              seasoningActive && styles.toggleButtonActive,
+            ]}
+            onPress={() => setRecipeView(true)}
+            activeOpacity={0.85}
           >
-            <TouchableOpacity onPress={() => setRecipeView(true)}>
-              <Ionicons name="create-outline" size={24} color={theme.text} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setRecipeView(false)}>
-              <Ionicons name="star" size={24} color={theme.text} />
-            </TouchableOpacity>
-          </View>
+            <Text
+              style={[
+                styles.toggleText,
+                seasoningActive && styles.toggleTextActive,
+              ]}
+            >
+              Your Recipes
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              !seasoningActive && styles.toggleButtonActive,
+            ]}
+            onPress={() => setRecipeView(false)}
+            activeOpacity={0.85}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                !seasoningActive && styles.toggleTextActive,
+              ]}
+            >
+              Favorited Recipes
+            </Text>
+          </TouchableOpacity>
         </View>
-        {userInfo?.createdRecipes?.length > 0 ? (
+        {recipeView ? (
+          userInfo && userInfo?.createdRecipes?.length > 0 ? (
+            <FlatList
+              data={userInfo?.createdRecipes}
+              keyExtractor={(item) => item.recipeId}
+              renderItem={renderRecipe}
+              style={styles.list}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No recipes yet</Text>
+            </View>
+          )
+        ) : userInfo && userInfo?.favoritedRecipes?.length > 0 ? (
           <FlatList
-            data={userInfo?.createdRecipes}
+            data={userInfo?.favoritedRecipes}
             keyExtractor={(item) => item.recipeId}
             renderItem={renderRecipe}
             style={styles.list}
@@ -145,7 +179,7 @@ export default function Profile() {
           />
         ) : (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No recipes yet</Text>
+            <Text style={styles.emptyText}>No favorited recipes yet</Text>
           </View>
         )}
 
@@ -284,8 +318,6 @@ export default function Profile() {
             </View>
           </TouchableWithoutFeedback>
         </Modal>
-
-        {/* ---------- List ---------- */}
         {seasoningActive ? (
           arrangedIngredientsOwned.length > 0 ? (
             <FlatList

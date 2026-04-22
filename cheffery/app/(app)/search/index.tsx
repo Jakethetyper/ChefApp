@@ -11,21 +11,36 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { router } from "expo-router";
 
-// -----------------------------
-// Types
-// -----------------------------
+type RatingsData = {
+  ratingsAmount: number;
+  ratingsAveraged: number;
+};
+
+type Rating = {
+  user: string;
+  name: string;
+  comment: string;
+  rating: number;
+};
+
 type Recipe = {
   _id: string;
   title: string;
   description?: string;
   cuisine?: string;
   categories?: string[];
+  prepTime?: string;
+  cookTime?: string;
+  ingredients?: { ingredient: string }[];
+  tasteRating?: number;
+  difficultyRating?: number;
+  chefName?: string;
+  avgRating: RatingsData;
+  ratings: Rating;
 };
 
-// -----------------------------
-// Debounce
-// -----------------------------
 function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -79,7 +94,16 @@ export default function SearchScreen() {
   // Render Item
   // -----------------------------
   const renderItem = ({ item }: { item: Recipe }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.8}
+      onPress={() =>
+        router.push({
+          pathname: "/search/recipe",
+          params: { data: JSON.stringify(item) },
+        })
+      }
+    >
       <Text style={styles.title}>{item.title}</Text>
 
       {item.description && (
@@ -154,7 +178,7 @@ const createStyles = (theme: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: 16,
+      paddingHorizontal: 8,
       backgroundColor: theme.background,
     },
 
@@ -190,6 +214,8 @@ const createStyles = (theme: any) =>
       borderRadius: 16,
       borderWidth: 1,
       borderColor: theme.border,
+      margin: 4,
+      marginTop: 0,
       marginBottom: 12,
       shadowColor: "#000",
       shadowOpacity: 0.08,
@@ -222,6 +248,12 @@ const createStyles = (theme: any) =>
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 999,
+    },
+    ratingsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginTop: 10,
     },
 
     tagSecondary: {

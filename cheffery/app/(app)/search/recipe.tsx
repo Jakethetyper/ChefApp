@@ -1,16 +1,37 @@
 import { useAuth } from "@/context/AuthContext";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 
-type Recipe = {
+type RatingsData = {
+  ratingsAmount: number;
+  ratingsAveraged: number;
+};
+
+type Rating = {
+  user: string;
+  name: string;
+  comment: string;
+  rating: number;
+};
+
+type Ingredient = {
+  quantity: string;
+  unit: string;
+  ingredient: string;
+};
+
+type Recipes = {
   _id: string;
   title: string;
   description?: string;
@@ -18,10 +39,13 @@ type Recipe = {
   categories?: string[];
   prepTime?: string;
   cookTime?: string;
-  ingredients?: { ingredient: string }[];
+  ingredients?: Ingredient[];
+  instructions: string[];
   tasteRating?: number;
   difficultyRating?: number;
   chefName?: string;
+  avgRating: RatingsData;
+  ratings: Rating[];
 };
 
 export default function Recipe() {
@@ -29,101 +53,225 @@ export default function Recipe() {
   const { theme, BACKEND_URL, userInfo } = useAuth();
   const styles = createStyles(theme);
 
-  const recipeData = JSON.parse(data);
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [newRating, setNewRating] = useState(0);
+  const [inGroceries, setInGroceries] = useState(false);
+
+  const recipeData: Recipes | null = data ? JSON.parse(data as string) : null;
+
+  useEffect(() => {
+    userInfo?.groceryList.recipes.map((item) => {
+      if (item.recipe === recipeData?.title) {
+        setInGroceries(true);
+      }
+    });
+  }, [recipeData?.title, userInfo]);
 
   const totalTime =
-    (recipeData.prepTime ? Number(recipeData.prepTime) : 0) +
-    (recipeData.cookTime ? Number(recipeData.cookTime) : 0);
+    (recipeData?.prepTime ? Number(recipeData?.prepTime) : 0) +
+    (recipeData?.cookTime ? Number(recipeData?.cookTime) : 0);
 
   const addToShoppingList = async () => {
+    if (inGroceries) {
+      return;
+    }
+
     try {
-      const response = await fetch(`${BACKEND_URL}/auth/addGroceries`, {
+      await fetch(`${BACKEND_URL}/auth/addGroceries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ingredients: recipeData?.ingredients,
           userName: userInfo?.userName,
-          recipeName: recipeData.title,
-          recipeId: recipeData._id,
+          recipeName: recipeData?.title,
+          recipeId: recipeData?._id,
         }),
       });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-      const data = await response.json();
+  const addReview = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/auth/addReview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: userInfo?.userId,
+          name: userInfo?.userName,
+          comment: newComment,
+          rating: newRating,
+          recipe: recipeData?._id,
+        }),
+      });
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <Text style={styles.title}>{recipeData.title}</Text>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          style={[{ width: "100%" }]}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Header */}
+            <Text style={styles.title}>{recipeData?.title}</Text>
 
-        {recipeData.description && (
-          <Text style={styles.description}>{recipeData.description}</Text>
-        )}
+            {recipeData?.description && (
+              <Text style={styles.description}>{recipeData?.description}</Text>
+            )}
 
-        {/* Tags */}
-        <View style={styles.tagContainer}>
-          {recipeData.cuisine && (
-            <View style={styles.tagPrimary}>
-              <Text style={styles.tagText}>{recipeData.cuisine}</Text>
+            {/* Tags */}
+            <View style={styles.tagContainer}>
+              {recipeData?.cuisine && (
+                <View style={styles.tagPrimary}>
+                  <Text style={styles.tagText}>{recipeData?.cuisine}</Text>
+                </View>
+              )}
+
+              {recipeData?.categories?.map((cat, i) => (
+                <View key={i} style={styles.tag}>
+                  <Text style={styles.tagText}>{cat}</Text>
+                </View>
+              ))}
             </View>
-          )}
 
-          {recipeData.categories?.map((cat, i) => (
-            <View key={i} style={styles.tag}>
-              <Text style={styles.tagText}>{cat}</Text>
+            {/* Meta */}
+            <View style={styles.metaRow}>
+              <Text style={styles.meta}>⏱ {totalTime} min</Text>
+              <Text style={styles.meta}>👨‍🍳 {recipeData?.chefName}</Text>
             </View>
-          ))}
-        </View>
 
-        {/* Meta */}
-        <View style={styles.metaRow}>
-          <Text style={styles.meta}>⏱ {totalTime} min</Text>
-          <Text style={styles.meta}>👨‍🍳 {recipeData.chefName}</Text>
-        </View>
+            <View style={styles.metaRow}>
+              <Text style={styles.rating}>⭐ {recipeData?.tasteRating}</Text>
+              <Text style={styles.difficulty}>
+                ⚙️ {recipeData?.difficultyRating}
+              </Text>
+            </View>
 
-        <View style={styles.metaRow}>
-          <Text style={styles.rating}>⭐ {recipeData.tasteRating}</Text>
-          <Text style={styles.difficulty}>
-            ⚙️ {recipeData.difficultyRating}
-          </Text>
-        </View>
+            {/* Ingredients */}
+            <Text style={styles.sectionTitle}>Ingredients</Text>
 
-        {/* Ingredients */}
-        <Text style={styles.sectionTitle}>Ingredients</Text>
+            <View style={styles.card}>
+              {recipeData?.ingredients?.map((ing, i) => (
+                <Text key={i} style={styles.listText}>
+                  • {ing.quantity} {ing.unit} {ing.ingredient}
+                </Text>
+              ))}
+            </View>
 
-        <View style={styles.card}>
-          {recipeData.ingredients.map((ing, i) => (
-            <Text key={i} style={styles.listText}>
-              • {ing.quantity} {ing.unit} {ing.ingredient}
-            </Text>
-          ))}
-        </View>
+            {/* Instructions */}
+            <Text style={styles.sectionTitle}>Instructions</Text>
 
-        {/* Instructions */}
-        <Text style={styles.sectionTitle}>Instructions</Text>
+            <View style={styles.card}>
+              {recipeData?.instructions.map((step, i) => (
+                <Text key={i} style={styles.stepText}>
+                  {i + 1}. {step}
+                </Text>
+              ))}
+            </View>
 
-        <View style={styles.card}>
-          {recipeData.instructions.map((step, i) => (
-            <Text key={i} style={styles.stepText}>
-              {i + 1}. {step}
-            </Text>
-          ))}
-        </View>
-      </ScrollView>
+            {/* Reviews */}
+            {showComments ? (
+              <View style={styles.commentsContainer}>
+                <View style={styles.ratingHeader}>
+                  <Text style={styles.sectionRatingTitle}>Ratings</Text>
 
-      {/* 🔥 Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={addToShoppingList}
-        activeOpacity={0.85}
-      >
-        <Text style={styles.fabText}>🛒 Add to Shopping List</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+                  <TouchableOpacity onPress={() => setShowComments(false)}>
+                    <Text style={styles.closeText}>Hide</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Existing Reviews */}
+                {recipeData && recipeData.ratings.length > 0 ? (
+                  recipeData?.ratings.map((item, index) => (
+                    <View key={index} style={styles.ratingCard}>
+                      <View style={styles.reviewTopRow}>
+                        <Text style={styles.ratingName}>{item.name}</Text>
+                        <Text style={styles.starText}>
+                          {"⭐".repeat(item.rating || 0)}
+                        </Text>
+                      </View>
+
+                      {item.comment ? (
+                        <Text style={styles.reviewComment}>{item.comment}</Text>
+                      ) : null}
+                    </View>
+                  ))
+                ) : (
+                  <View style={styles.emptyCard}>
+                    <Text style={styles.emptyText}>No Ratings Yet</Text>
+                  </View>
+                )}
+
+                {/* Add Review */}
+                {userInfo?.userName === recipeData?.chefName && (
+                  <View style={styles.addReviewBox}>
+                    <Text style={styles.addReviewTitle}>Your Rating</Text>
+
+                    {/* Stars */}
+                    <View style={styles.starRow}>
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <TouchableOpacity
+                          key={num}
+                          onPress={() => setNewRating(num)}
+                        >
+                          <Text style={styles.starPicker}>
+                            {num <= newRating ? "⭐" : "☆"}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+
+                    {/* Comment */}
+                    <View style={styles.commentBar}>
+                      <TextInput
+                        value={newComment}
+                        onChangeText={setNewComment}
+                        style={styles.input}
+                        placeholder="Write a comment..."
+                        placeholderTextColor={theme.textMuted}
+                      />
+
+                      <TouchableOpacity
+                        style={styles.sendButton}
+                        onPress={addReview}
+                      >
+                        <Text style={styles.sendText}>Post</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.commentsContainer}
+                onPress={() => setShowComments(true)}
+              >
+                <Text style={styles.sectionRatingTitle}>Ratings</Text>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
+
+          {/* 🔥 Floating Action Button */}
+          <TouchableOpacity
+            style={[
+              styles.fab,
+              inGroceries && { backgroundColor: theme.success },
+            ]}
+            onPress={addToShoppingList}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.fabText}>🛒</Text>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -227,11 +375,10 @@ const createStyles = (theme: any) =>
 
     fab: {
       position: "absolute",
-      bottom: 20,
-      left: 16,
-      right: 16,
+      top: 0,
+      right: 0,
       backgroundColor: theme.primary,
-      padding: 16,
+      padding: 14,
       borderRadius: 16,
       alignItems: "center",
       shadowColor: "#000",
@@ -240,10 +387,116 @@ const createStyles = (theme: any) =>
       shadowRadius: 6,
       elevation: 5,
     },
-
     fabText: {
       color: "#fff",
-      fontSize: 16,
+      fontSize: 12,
       fontWeight: "600",
+    },
+
+    commentsContainer: {
+      marginTop: 16,
+      backgroundColor: theme.card,
+      padding: 14,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    ratingHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    sectionRatingTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.text,
+    },
+    closeText: {
+      color: theme.primary,
+      fontWeight: "600",
+    },
+    ratingCard: {
+      backgroundColor: theme.surface,
+      padding: 12,
+      borderRadius: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    ratingName: {
+      color: theme.text,
+      fontSize: 15,
+    },
+    emptyCard: {
+      paddingVertical: 14,
+      alignItems: "center",
+    },
+    emptyText: {
+      color: theme.textMuted,
+    },
+    commentBar: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    input: {
+      flex: 1,
+      backgroundColor: theme.surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: theme.border,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      color: theme.text,
+      marginRight: 10,
+    },
+    sendButton: {
+      backgroundColor: theme.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 20,
+    },
+    sendText: {
+      color: "#fff",
+      fontWeight: "700",
+    },
+
+    reviewTopRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+
+    reviewComment: {
+      marginTop: 6,
+      color: theme.textMuted,
+      lineHeight: 20,
+    },
+
+    starText: {
+      fontSize: 14,
+    },
+
+    addReviewBox: {
+      marginTop: 14,
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+    },
+
+    addReviewTitle: {
+      color: theme.text,
+      fontWeight: "700",
+      marginBottom: 10,
+    },
+
+    starRow: {
+      flexDirection: "row",
+      marginBottom: 12,
+    },
+
+    starPicker: {
+      fontSize: 30,
+      marginRight: 8,
     },
   });

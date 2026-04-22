@@ -8,8 +8,20 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+
+type RatingsData = {
+  ratingsAmount: number;
+  ratingsAveraged: number;
+};
+
+type Rating = {
+  user: string;
+  name: string;
+  comment: string;
+  rating: number;
+};
 
 type Recipe = {
   _id: string;
@@ -23,6 +35,8 @@ type Recipe = {
   tasteRating?: number;
   difficultyRating?: number;
   chefName?: string;
+  avgRating: RatingsData;
+  ratings: rating;
 };
 
 export default function Home() {
@@ -122,25 +136,27 @@ export default function Home() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>🍳 Recent Recipes</Text>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.header}>🍳 Recent Recipes</Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color={theme.primary} />
-      ) : recentRecipes.length > 0 ? (
-        <FlatList
-          data={recentRecipes}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <Text style={styles.emptyText}>
-          No recipes yet. Be the first to add one!
-        </Text>
-      )}
-    </SafeAreaView>
+        {loading ? (
+          <ActivityIndicator size="large" color={theme.primary} />
+        ) : recentRecipes.length > 0 ? (
+          <FlatList
+            data={recentRecipes}
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <Text style={styles.emptyText}>
+            No recipes yet. Be the first to add one!
+          </Text>
+        )}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -148,7 +164,7 @@ const createStyles = (theme: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: 16,
+      paddingHorizontal: 8,
       backgroundColor: theme.background,
     },
 
@@ -161,12 +177,13 @@ const createStyles = (theme: any) =>
 
     list: {
       paddingBottom: 20,
-      gap: 16,
+      gap: 8,
     },
 
     card: {
       backgroundColor: theme.card,
       padding: 16,
+      margin: 4,
       borderRadius: 16,
       borderWidth: 1,
       borderColor: theme.border,

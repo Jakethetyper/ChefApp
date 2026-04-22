@@ -36,7 +36,16 @@ const recipeSchema = new mongoose.Schema({
   ],
   cuisine: {
     type: String,
-    enum: ["Italian", "Mexican", "American", "Asian", "Indian", "Chinese", "BBQ", "Seafood",],
+    enum: [
+      "Italian",
+      "Mexican",
+      "American",
+      "Asian",
+      "Indian",
+      "Chinese",
+      "BBQ",
+      "Seafood",
+    ],
   },
   categories: [
     {
@@ -66,6 +75,14 @@ const recipeSchema = new mongoose.Schema({
       },
     },
   ],
+  avgRating: {
+    ratingsAmount: {
+      type: Number,
+    },
+    ratingsAveraged: {
+      type: Number,
+    },
+  },
   chef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

@@ -86,8 +86,27 @@ const searchRecipes = async (req, res) => {
   }
 };
 
+const addReview = async (req, res) => {
+  try {
+    const { user, name, comment, rating, recipe } = req.body;
+
+    const recipeToChange = await Recipe.findOne({ _id: recipe });
+    const ratingsAvg = recipeToChange.avgRating;
+
+    recipeToChange.avgRating.ratingsAveraged =
+      (ratingsAvg.ratingsAmount * ratingsAvg.ratingsAveraged + rating) /
+      (ratingsAvg.ratingsAmount + 1);
+
+    recipeToChange.ratings.push({ user, name, comment, rating });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error adding rating", error });
+  }
+};
+
 module.exports = {
   addRecipe,
   getRecentRecipes,
   searchRecipes,
+  addReview,
 };

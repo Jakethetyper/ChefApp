@@ -11,6 +11,7 @@ const {
   addRecipe,
   getRecentRecipes,
   searchRecipes,
+  addReview,
 } = require("../controllers/recipeController");
 
 const {
@@ -27,6 +28,7 @@ router.post("/me", me);
 router.post("/updateUser", updateUser);
 
 router.post("/addRecipe", addRecipe);
+router.post("/addReview", addReview);
 
 // Get recent recipes
 router.post("/getrecentrecipes", getRecentRecipes);

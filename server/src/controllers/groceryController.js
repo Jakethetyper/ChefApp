@@ -137,7 +137,9 @@ const addGroceries = async (req, res) => {
     for (const incoming of ingredients) {
       const incomingName = normalizeIngredient(incoming.ingredient);
 
-      const seasoningCheck = incoming.toLowerCase().replace(/\s+/g, "");
+      const seasoningCheck = incoming.ingredient
+        .toLowerCase()
+        .replace(/\s+/g, "");
 
       const existingIndex = updatedGroceries.findIndex(
         (item) =>

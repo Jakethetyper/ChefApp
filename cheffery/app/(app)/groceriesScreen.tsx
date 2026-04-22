@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
@@ -30,7 +29,7 @@ type GroceryList = {
 export default function GroceriesScreen() {
   const { theme, userInfo, BACKEND_URL } = useAuth();
 
-  const groceryList: GroceryList = userInfo?.groceryList || {
+  const groceryList: GroceryList | null = userInfo?.groceryList || {
     ingredients: [],
     seasonings: [],
     recipes: [],
@@ -40,10 +39,10 @@ export default function GroceriesScreen() {
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
 
   const filteredIngredients = useMemo(() => {
-    return groceryList.ingredients.filter((item) =>
+    return groceryList?.ingredients.filter((item) =>
       item.ingredient.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [search, groceryList.ingredients]);
+  }, [search, groceryList?.ingredients]);
 
   const toggleChecked = (name: string) => {
     if (checkedItems.includes(name)) {
@@ -54,10 +53,10 @@ export default function GroceriesScreen() {
   };
 
   const progress =
-    groceryList.ingredients.length === 0
+    groceryList?.ingredients.length === 0
       ? 0
       : Math.round(
-          (checkedItems.length / groceryList.ingredients.length) * 100,
+          (checkedItems.length / groceryList?.ingredients.length) * 100,
         );
 
   const styles = createStyles(theme);
@@ -94,23 +93,6 @@ export default function GroceriesScreen() {
         </View>
       </View>
 
-      {/* Search */}
-      <View style={styles.searchBox}>
-        <Ionicons
-          name="search"
-          size={18}
-          color={theme.textMuted}
-          style={{ marginRight: 8 }}
-        />
-        <TextInput
-          placeholder="Search ingredients..."
-          placeholderTextColor={theme.textMuted}
-          value={search}
-          onChangeText={setSearch}
-          style={styles.input}
-        />
-      </View>
-
       {/* Progress */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Shopping Progress</Text>
@@ -126,7 +108,7 @@ export default function GroceriesScreen() {
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
 
-        {filteredIngredients.map((item, index) => {
+        {filteredIngredients?.map((item, index) => {
           const checked = checkedItems.includes(item.ingredient);
 
           return (
@@ -170,7 +152,7 @@ export default function GroceriesScreen() {
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Recipes</Text>
 
-        {groceryList.recipes.map((recipe, index) => (
+        {groceryList?.recipes.map((recipe, index) => (
           <View key={index} style={styles.recipeRow}>
             <Ionicons name="book-outline" size={18} color={theme.primary} />
             <Text style={styles.recipeText}>{recipe.recipe}</Text>
