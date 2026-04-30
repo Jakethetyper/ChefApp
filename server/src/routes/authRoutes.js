@@ -12,12 +12,14 @@ const {
   getRecentRecipes,
   searchRecipes,
   addReview,
+  fetchRecipe,
 } = require("../controllers/recipeController");
 
 const {
   addGroceries,
   removeGroceryItems,
   addSeasoning,
+  addIngredient,
 } = require("../controllers/groceryController");
 
 const router = express.Router();
@@ -29,6 +31,7 @@ router.post("/updateUser", updateUser);
 
 router.post("/addRecipe", addRecipe);
 router.post("/addReview", addReview);
+router.post("/fetchRecipe", fetchRecipe);
 
 // Get recent recipes
 router.post("/getrecentrecipes", getRecentRecipes);
@@ -39,5 +42,6 @@ router.get("/search", searchRecipes);
 router.post("/addSeasoning", addSeasoning);
 router.post("/addGroceries", addGroceries);
 router.post("/removeGroceryItems", removeGroceryItems);
+router.post("/addIngredient", addIngredient);
 
 module.exports = router;

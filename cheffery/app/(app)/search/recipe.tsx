@@ -49,7 +49,7 @@ type Recipes = {
 };
 
 export default function Recipe() {
-  const { data } = useLocalSearchParams();
+  const { data, recipeTitle } = useLocalSearchParams();
   const { theme, BACKEND_URL, userInfo } = useAuth();
   const styles = createStyles(theme);
 
@@ -58,9 +58,32 @@ export default function Recipe() {
   const [newRating, setNewRating] = useState(0);
   const [inGroceries, setInGroceries] = useState(false);
 
-  const recipeData: Recipes | null = data ? JSON.parse(data as string) : null;
+  const [recipeData, setRecipeData] = useState<Recipes | null>(
+    data ? JSON.parse(data as string) : null,
+  );
 
   useEffect(() => {
+    const getRecipe = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/auth/fetchRecipe`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            recipeTitle,
+          }),
+        });
+
+        const result = await response.json();
+        setRecipeData(result.recipeData);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (!data) {
+      getRecipe();
+    }
+
     userInfo?.groceryList.recipes.map((item) => {
       if (item.recipe === recipeData?.title) {
         setInGroceries(true);

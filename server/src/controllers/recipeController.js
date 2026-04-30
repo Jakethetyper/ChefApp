@@ -1,5 +1,4 @@
 const Recipe = require("../models/recipes");
-const user = require("../models/user");
 const User = require("../models/user");
 
 const addRecipe = async (req, res) => {
@@ -104,9 +103,36 @@ const addReview = async (req, res) => {
   }
 };
 
+const addIngredient = async (req, res) => {
+  try {
+    const { newIngredient, userName } = req.body;
+
+    const updateUser = await User.findOne({ userName });
+
+    updateUser.groceryList.ingredients.push;
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error Adding Ingredient", error });
+  }
+};
+
+const fetchRecipe = async (req, res) => {
+  try {
+    const { recipeTitle } = req.body;
+    const title = recipeTitle.recipe;
+
+    const recipeData = await Recipe.findOne(title);
+    return res.status(200).json({ recipeData });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error Finding Recipe", error });
+  }
+};
+
 module.exports = {
   addRecipe,
   getRecentRecipes,
   searchRecipes,
   addReview,
+  fetchRecipe,
 };

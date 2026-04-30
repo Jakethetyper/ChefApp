@@ -135,6 +135,7 @@ const addGroceries = async (req, res) => {
     const updatedGroceries = [...groceryList];
 
     for (const incoming of ingredients) {
+      console.log(incoming);
       const incomingName = normalizeIngredient(incoming.ingredient);
 
       const seasoningCheck = incoming.ingredient
@@ -208,7 +209,7 @@ const removeGroceryItems = async (req, res) => {
 
     return res.status(200).json({
       message: "Items removed",
-      groceries: updatedIngredients,
+      groceries: userToChange,
     });
   } catch (error) {
     console.log(error);
@@ -242,8 +243,25 @@ const addSeasoning = async (req, res) => {
   }
 };
 
+const addIngredient = async (req, res) => {
+  try {
+    const { ingredient, userName } = req.body;
+
+    const addIngredientToUser = await User.findOne({ userName });
+
+    addIngredientToUser.groceryList.ingredients.push({ ingredient });
+    await addIngredientToUser.save();
+
+    return res.status(200).json({ addIngredientToUser });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error Adding Ingredient", error });
+  }
+};
+
 module.exports = {
   addGroceries,
   removeGroceryItems,
+  addIngredient,
   addSeasoning,
 };

@@ -24,7 +24,7 @@ export default function Profile() {
 
   const [seasoningActive, setSeasoningActive] = useState(true);
   const [addingNew, setAddingNew] = useState(false);
-  const [recipeView, setRecipeView] = useState(false);
+  const [recipeView, setRecipeView] = useState(true);
   const [newIngredient, setNewIngredient] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [arrangedIngredientsOwned, setArrangedIngredientsOwned] = useState<
@@ -120,16 +120,13 @@ export default function Profile() {
           <TouchableOpacity
             style={[
               styles.toggleButton,
-              seasoningActive && styles.toggleButtonActive,
+              recipeView && styles.toggleButtonActive,
             ]}
             onPress={() => setRecipeView(true)}
             activeOpacity={0.85}
           >
             <Text
-              style={[
-                styles.toggleText,
-                seasoningActive && styles.toggleTextActive,
-              ]}
+              style={[styles.toggleText, recipeView && styles.toggleTextActive]}
             >
               Your Recipes
             </Text>
@@ -138,7 +135,7 @@ export default function Profile() {
           <TouchableOpacity
             style={[
               styles.toggleButton,
-              !seasoningActive && styles.toggleButtonActive,
+              !recipeView && styles.toggleButtonActive,
             ]}
             onPress={() => setRecipeView(false)}
             activeOpacity={0.85}
@@ -146,7 +143,7 @@ export default function Profile() {
             <Text
               style={[
                 styles.toggleText,
-                !seasoningActive && styles.toggleTextActive,
+                !recipeView && styles.toggleTextActive,
               ]}
             >
               Favorited Recipes
@@ -165,12 +162,12 @@ export default function Profile() {
             />
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No recipes yet</Text>
+              <Text style={styles.emptyText}>No favorited recipes yet</Text>
             </View>
           )
         ) : userInfo && userInfo?.favoritedRecipes?.length > 0 ? (
           <FlatList
-            data={userInfo?.favoritedRecipes}
+            data={userInfo?.createdRecipes}
             keyExtractor={(item) => item.recipeId}
             renderItem={renderRecipe}
             style={styles.list}
@@ -179,7 +176,7 @@ export default function Profile() {
           />
         ) : (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No favorited recipes yet</Text>
+            <Text style={styles.emptyText}>No created recipes yet</Text>
           </View>
         )}
 

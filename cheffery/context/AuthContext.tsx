@@ -88,11 +88,12 @@ type AuthContextType = {
   BACKEND_URL: string;
   userInfo: User | null;
   theme: Theme;
+  updateUser: (updates: Partial<User>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = "https://fd6a-208-38-228-61.ngrok-free.app";
+const BACKEND_URL = "https://816b-208-38-228-61.ngrok-free.app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -249,6 +250,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null; // or splash screen
   }
 
+  const updateUser = (updates: Partial<User>) => {
+    setUserInfo((prev) => (prev ? { ...prev, ...updates } : prev));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -258,6 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         BACKEND_URL,
         userInfo,
+        updateUser,
         theme,
       }}
     >

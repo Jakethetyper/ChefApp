@@ -5,9 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/context/AuthContext";
+import { router } from "expo-router";
 
 type Ingredient = {
   quantity: string;
@@ -27,7 +29,9 @@ type GroceryList = {
 };
 
 export default function GroceriesScreen() {
-  const { theme, userInfo, BACKEND_URL } = useAuth();
+  const { theme, userInfo, BACKEND_URL, updateUser } = useAuth();
+
+  const [newIngredient, setNewIngredient] = useState("");
 
   const groceryList: GroceryList | null = userInfo?.groceryList || {
     ingredients: [],
@@ -72,8 +76,28 @@ export default function GroceriesScreen() {
         }),
       });
 
-      const message = await response.json();
-      console.log(message);
+      const result = await response.json();
+      updateUser(result.groceries);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addGroceries = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/auth/addIngredient`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredient: newIngredient,
+          userName: userInfo?.userName,
+        }),
+      });
+      setNewIngredient("");
+
+      const data = await response.json();
+
+      updateUser(data.addIngredientToUser);
     } catch (error) {
       console.log(error);
     }
@@ -91,6 +115,19 @@ export default function GroceriesScreen() {
           <Text style={styles.title}>🛒 Grocery List</Text>
           <Text style={styles.subtitle}>Everything needed for your meals</Text>
         </View>
+      </View>
+
+      <View style={styles.row}>
+        <TextInput
+          placeholder="Add Ingredient"
+          style={styles.input}
+          placeholderTextColor={theme.textMuted}
+          value={newIngredient}
+          onChangeText={setNewIngredient}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={addGroceries}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Progress */}
@@ -153,10 +190,19 @@ export default function GroceriesScreen() {
         <Text style={styles.sectionTitle}>Recipes</Text>
 
         {groceryList?.recipes.map((recipe, index) => (
-          <View key={index} style={styles.recipeRow}>
+          <TouchableOpacity
+            onPress={() => {
+              router.replace({
+                pathname: "/search/recipe",
+                params: { recipeTitle: JSON.stringify(recipe) },
+              });
+            }}
+            key={index}
+            style={styles.recipeRow}
+          >
             <Ionicons name="book-outline" size={18} color={theme.primary} />
             <Text style={styles.recipeText}>{recipe.recipe}</Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -207,11 +253,31 @@ const createStyles = (theme: any) =>
       borderWidth: 1,
       borderColor: theme.border,
     },
-
+    row: {
+      flexDirection: "row",
+      gap: 8,
+      marginBottom: 12,
+    },
     input: {
+      backgroundColor: theme.surface,
+      borderRadius: 14,
+      padding: 14,
       flex: 1,
+      borderWidth: 1,
+      borderColor: theme.border,
       color: theme.text,
-      fontSize: 15,
+    },
+    addButton: {
+      backgroundColor: theme.primary,
+      paddingHorizontal: 14,
+      justifyContent: "center",
+      borderRadius: 10,
+    },
+
+    addButtonText: {
+      color: "#fff",
+      fontSize: 18,
+      fontWeight: "bold",
     },
 
     card: {

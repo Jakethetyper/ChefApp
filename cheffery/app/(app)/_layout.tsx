@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Tabs, router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function AppLayout() {
@@ -49,6 +49,12 @@ export default function AppLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="search" color={color} size={size} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.replace("/(app)/search"); // 👈 index route
+          },
         }}
       />
       <Tabs.Screen

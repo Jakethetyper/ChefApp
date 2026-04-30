@@ -59,6 +59,7 @@ const recipeSchema = new mongoose.Schema({
         "Entree",
         "Appetizer",
         "Drink",
+        "Meal Prep",
       ],
     },
   ],

@@ -151,20 +151,26 @@ export default function AddRecipe() {
 
         {showMealMenu && (
           <View style={styles.dropdownMenu}>
-            {["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Drink"].map(
-              (item) => (
-                <TouchableOpacity
-                  key={item}
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setMealType(item);
-                    setShowMealMenu(false);
-                  }}
-                >
-                  <Text style={styles.dropdownItemText}>{item}</Text>
-                </TouchableOpacity>
-              ),
-            )}
+            {[
+              "Breakfast",
+              "Lunch",
+              "Dinner",
+              "Snack",
+              "Dessert",
+              "Drink",
+              "Meal Prep",
+            ].map((item) => (
+              <TouchableOpacity
+                key={item}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setMealType(item);
+                  setShowMealMenu(false);
+                }}
+              >
+                <Text style={styles.dropdownItemText}>{item}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         )}
 
